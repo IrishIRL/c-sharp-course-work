@@ -1,0 +1,104 @@
+﻿@page
+@model WebApp.Pages.Game.Play
+@{
+    ViewData["Title"] = "Game - Play";
+}
+
+<h2>Player No. @Index._brain._currentPlayerNo turn.</h2><br/><br/>
+<div class="row">
+    <div>
+        <h2 class="text-center">Enemies board</h2>
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                @for (int y = 0; y < Index._brain.GetEnemyBoard().GetLength(1); y++)
+                {
+                    <th>
+                        @y
+                    </th>
+                }
+            </tr>
+            </thead>
+            <tbody>
+            @for (int y = 0; y < Index._brain.GetEnemyBoard().GetLength(1); y++)
+            {
+                <tr style="height: 30px;">
+                    @for (int x = 0; x < Index._brain.GetEnemyBoard().GetLength(0); x++)
+                    {
+                        <td style="width: 30px; cursor: pointer" onclick="window.location.href = '/Game/Play?x=@x&y=@y' ">
+                            @if (Index._brain.GetEnemyBoard()[x, y].IsBomb == true)
+                            {
+                                if (Index._brain.GetEnemyBoard()[x, y].IsShip == true)
+                                {
+                                    <text>X</text>
+                                }
+                                else
+                                {
+                                    <text>-</text>
+                                }
+                            }
+                            else
+                            {
+                                <text> </text>
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <h2>|        |</h2>
+    <div>
+        <h2 class="text-center">Your board</h2>
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                @for (int y = 0; y < Index._brain.GetUserBoard().GetLength(1); y++)
+                {
+                    <th>
+                        @y
+                    </th>
+                }
+            </tr>
+            </thead>
+            <tbody>
+            @for (int y = 0; y < Index._brain.GetUserBoard().GetLength(1); y++)
+            {
+                <tr style="height: 30px;">
+                    @for (int x = 0; x < Index._brain.GetUserBoard().GetLength(0); x++)
+                    {
+                        <td style="width: 30px;">
+                            @if (Index._brain.GetUserBoard()[x, y].IsShip)
+                            {
+                                if (Index._brain.GetUserBoard()[x, y].IsBomb)
+                                {
+                                    <text>X</text>
+                                }
+                                else
+                                {
+                                    <text>8</text>
+                                }
+                            }
+                            else if (Index._brain.GetUserBoard()[x, y].IsBomb)
+                            {
+                                if (!Index._brain.GetUserBoard()[x, y].IsShip)
+                                {
+                                    <text>-</text>  
+                                }
+                            }
+                            else
+                            {
+                                <text> </text>
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+<br/><br/>
+<button class="btn btn-primary" onclick="location.href='?qs=true'">Save and Exit</button> 
+

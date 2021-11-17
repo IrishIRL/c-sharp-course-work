@@ -1,0 +1,14 @@
+﻿@page
+@model WebApp.Pages.Game.Index
+@{
+    ViewData["Title"] = "Game";
+}
+
+<div class="text-center">
+  <h3>Would you like to start a new game or continue an old one?</h3><br/>
+  <button class="btn btn-primary" onclick="location.href='Game/SetShips'">Start a new one</button><a>  OR  </a>
+  <button class="btn btn-primary" onclick="location.href='Game/LoadGame'">Continue</button>
+  <br/><br/><br/>
+  <!-- Implement some logic to check if the user has set up the board already. -->
+  <button class="btn btn-primary" onclick="location.href='Game/Play'">Now you can play a game</button>  
+</div>

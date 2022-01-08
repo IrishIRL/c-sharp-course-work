@@ -14,15 +14,15 @@ namespace BattleShipBrain
             {
                 Name = "Patrol",
                 Quantity = 1,
-                ShipSizeY = 1,
-                ShipSizeX = 1,
+                ShipSizeY = 2,
+                ShipSizeX = 2,
             },
             new ShipConfig()
             {
                 Name = "Cruiser",
                 Quantity = 1,
-                ShipSizeY = 1,
-                ShipSizeX = 2,
+                ShipSizeY = 2,
+                ShipSizeX = 1,
             },
             new ShipConfig()
             {
@@ -35,15 +35,15 @@ namespace BattleShipBrain
             {
                 Name = "Battleship",
                 Quantity = 1,
-                ShipSizeY = 1,
-                ShipSizeX = 4,
+                ShipSizeY =4,
+                ShipSizeX = 1,
             },
             new ShipConfig()
             {
                 Name = "Carrier",
                 Quantity = 1,
                 ShipSizeY = 1,
-                ShipSizeX = 5,
+                ShipSizeX = 4,
             },
         };
 

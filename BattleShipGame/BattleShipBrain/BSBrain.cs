@@ -1,24 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using BattleShipConsoleApp;
 using DAL;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace BattleShipBrain
 {
     public class BsBrain
     {
         public int _currentPlayerNo = 0;
-        private static GameBoard[] _gameBoards = new GameBoard[2];
-        
+        private GameBoard[] _gameBoards = new GameBoard[2];
+        private EShipTouchRule _rule = new EShipTouchRule();
         private readonly Random _rnd = new Random();
-        
+
         public BsBrain(GameConfig config)
         {
             _gameBoards[0] = new GameBoard();
             _gameBoards[1] = new GameBoard();
-            
+
             _gameBoards[0].Board = new BoardSquareState[config.BoardSizeX, config.BoardSizeY];
             _gameBoards[1].Board = new BoardSquareState[config.BoardSizeX, config.BoardSizeY];
 
@@ -41,49 +43,139 @@ namespace BattleShipBrain
             */
         }
 
+        // Function that converts Zero to One and One to Zero
+        public int OneToZero(int i)
+        {
+            return i == 0 ? 1 : 0; // same as if (i == 0) return 1;
+        }
+        
         // Placing ships logic
-        public void PlaceShip(int[] xy)
+        public void PlaceShip(string shipName, List<Coordinate> coordinates)
         {
-            switch (_currentPlayerNo)
+            _gameBoards[_currentPlayerNo].Ships.Add(new Ship(shipName, coordinates));
+
+            foreach (var coordinate in coordinates)
             {
-                case 0:
-                    _gameBoards[0].Board[xy[0], xy[1]].IsShip = true;
-                    break;
-                case 1:
-                    _gameBoards[1].Board[xy[0], xy[1]].IsShip = true;
-                    break;
+                _gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y].IsShip = true;
             }
         }
-        
+
+        // Removing ships logic is used while deciding where to place the ships
+        public void RemoveShip(string shipName, List<Coordinate> coordinates)
+        {
+            _gameBoards[_currentPlayerNo].Ships.Remove(new Ship(shipName, coordinates));
+
+            foreach (var coordinate in coordinates)
+            {
+                _gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y].IsShip = false;
+            }
+        }
+
+        // Check condition is used to check if it is possible to place ships in such place or not.
+        public bool CheckCondition(List<Coordinate> coordinates)
+        {
+            foreach (var coordinate in coordinates)
+            {
+                try
+                {
+                    if (_gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y].IsShip) return false;
+                }
+                catch
+                {
+                    return false;
+                }
+
+                switch (_rule)
+                {
+                    case EShipTouchRule.NoTouch:
+                        try
+                        {
+                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y].IsShip)
+                                return false;
+                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y + 1].IsShip)
+                                return false;
+                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y].IsShip)
+                                return false;
+                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y - 1].IsShip)
+                                return false;
+                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y + 1].IsShip)
+                                return false;
+                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y - 1].IsShip)
+                                return false;
+                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y + 1].IsShip)
+                                return false;
+                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y - 1].IsShip)
+                                return false;
+                        }
+                        catch
+                        {
+                            // ignored (return true);
+                        }
+
+                        break;
+
+                    case EShipTouchRule.CornerTouch:
+                        try
+                        {
+                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y].IsShip)
+                                return false;
+                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y + 1].IsShip)
+                                return false;
+                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y].IsShip)
+                                return false;
+                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y - 1].IsShip)
+                                return false;
+                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y + 1].IsShip)
+                                return false;
+                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y - 1].IsShip)
+                                return false;
+                        }
+                        catch
+                        {
+                            // ignored (return true);
+                        }
+
+                        break;
+                }
+            }
+
+            return true;
+        }
+
         // Placing bomb
-        public void PlaceBomb(int[] xy)
+        public bool PlaceBomb(int[] xy)
         {
-            switch (_currentPlayerNo)
-            {
-                case 0:
-                    _gameBoards[0].Board[xy[0], xy[1]].IsBomb = true;
-                    break;
-                case 1:
-                    _gameBoards[1].Board[xy[0], xy[1]].IsBomb = true;
-                    break;
-            }
+            _gameBoards[OneToZero(_currentPlayerNo)].Board[xy[0], xy[1]].IsBomb = true;
+            if (_gameBoards[OneToZero(_currentPlayerNo)].Board[xy[0], xy[1]].IsShip) return true;
+
+            return false;
         }
-        
+
+        public bool CheckForBomb(int x, int y)
+        {
+            if (x > -1 && y > -1)
+            {
+                if (_gameBoards[OneToZero(_currentPlayerNo)].Board[x, y].IsBomb) return true;
+            }
+            return false;
+        }
+
         // Returning enemies game board
         public BoardSquareState[,] GetEnemyBoard()
         {
-            return _gameBoards[_currentPlayerNo].Board;
+            return _gameBoards[OneToZero(_currentPlayerNo)].Board;
         }
-        
+
         // Return user own game board
         public BoardSquareState[,] GetUserBoard()
         {
-            if(_currentPlayerNo == 0) return _gameBoards[1].Board;
-            if(_currentPlayerNo == 1) return _gameBoards[0].Board;
-            else
-            {
-                return _gameBoards[_currentPlayerNo].Board;
-            }
+            return _gameBoards[_currentPlayerNo].Board;
+        }
+
+        // If true, then won
+        public bool GameWinCondition()
+        {
+            return _gameBoards[OneToZero(_currentPlayerNo)].Ships.All(ship => ship.IsShipSunk(GetEnemyBoard()));
         }
         
         // Save game to local/ database
@@ -217,6 +309,35 @@ namespace BattleShipBrain
                 }
             }
             return json;
+        }
+        
+        //Proper JsonBuilder
+        public static string JsonBuilder(int[] boardXyGrabbed, int touchRule, GameConfig conf)
+        {
+            conf.BoardSizeX = boardXyGrabbed[0];
+            conf.BoardSizeY = boardXyGrabbed[1];
+            
+            switch (touchRule)
+            {
+                case 1:
+                    conf.EShipTouchRule = EShipTouchRule.NoTouch;
+                    break;
+                case 2:
+                    conf.EShipTouchRule = EShipTouchRule.CornerTouch;
+                    break;
+                case 3:
+                    conf.EShipTouchRule = EShipTouchRule.SideTouch;
+                    break;
+            }
+            
+            var jsonOptions = new JsonSerializerOptions()
+            {
+                WriteIndented = true
+            };
+
+            var confJsonStr = JsonSerializer.Serialize(conf, jsonOptions);
+            
+            return confJsonStr;
         }
         
         // Upload Current Config To DataBase

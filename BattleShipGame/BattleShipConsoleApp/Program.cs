@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BattleShipConsoleUI;
 using MenuSystem;
 
@@ -8,13 +9,21 @@ namespace BattleShipConsoleApp
     {
         static void Main()
         {
-            var mainMenu = new Menu("BattleShip Main", EMenuLevel.Root);
-            mainMenu.AddMenuItems(new List<MenuItem>()
+            try {
+                var playGame = new Game();
+                var mainMenu = new Menu("BattleShip Main", EMenuLevel.Root);
+                mainMenu.AddMenuItems(new List<MenuItem>()
+                {
+                    new("P", "Play a Game", playGame.PlayGame),
+                    new("C", "Config Options", ConfigOptionsMenu),
+                });
+                mainMenu.Run();
+            }
+            catch(Exception e)
             {
-                new("P", "Play a Game", Game.PlayGame),
-                new("C", "Config Options", ConfigOptionsMenu),
-            });
-            mainMenu.Run();
+                Console.WriteLine(e);
+                Console.ReadLine();
+            }
         }
 
         private static string ConfigOptionsMenu()
@@ -34,7 +43,6 @@ namespace BattleShipConsoleApp
             menu.AddMenuItems(new List<MenuItem>()
             {
                 new("C", "Make CUSTOM config", ConfigBuilder.ConfigAssembler),
-                new("D", "Display current config", ConfigLocalOptions.DisplayConfig),
                 new("RR", "Remove configs from computer", ConfigLocalOptions.RemoveConfig)
             });
             return menu.Run();

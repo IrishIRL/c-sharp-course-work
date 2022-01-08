@@ -3,18 +3,22 @@
 @{
     ViewData["Title"] = "Game - Play";
 }
-
-<h2>Player No. @Index._brain._currentPlayerNo turn.</h2><br/><br/>
+@{
+    int currentPlayerNo = @Index._brain._currentPlayerNo + 1;
+    int counter = 1;
+}
+<h2>Player No. @currentPlayerNo turn.</h2><br/><br/>
 <div class="row">
-    <div>
+    <div class="col">
         <h2 class="text-center">Enemies board</h2>
         <table class="table table-bordered">
-            <thead>
+            <thead class="thead-dark">
             <tr>
-                @for (int y = 0; y < Index._brain.GetEnemyBoard().GetLength(1); y++)
+                <th scope="col">#</th>
+                @for (int x = 0; x < Index._brain.GetEnemyBoard().GetLength(0); x++)
                 {
-                    <th>
-                        @y
+                    <th scope="col">
+                        @Model.letters[x % 26]
                     </th>
                 }
             </tr>
@@ -22,10 +26,12 @@
             <tbody>
             @for (int y = 0; y < Index._brain.GetEnemyBoard().GetLength(1); y++)
             {
-                <tr style="height: 30px;">
+                <tr style="height: 50px; width: 50px;">
+                    <th class="bg-dark text-light" style="border: 1px solid #454d55" scope="row">@y</th>
                     @for (int x = 0; x < Index._brain.GetEnemyBoard().GetLength(0); x++)
                     {
-                        <td style="width: 30px; cursor: pointer" onclick="window.location.href = '/Game/Play?x=@x&y=@y' ">
+                        <td style="height: 50px; width: 50px; cursor: pointer" onclick="window.location.href = '/Game/Play?cellId=@counter' ">
+                            <!-- onclick="window.location.href = window.location.href + '&cellId=' -->
                             @if (Index._brain.GetEnemyBoard()[x, y].IsBomb == true)
                             {
                                 if (Index._brain.GetEnemyBoard()[x, y].IsShip == true)
@@ -42,22 +48,24 @@
                                 <text> </text>
                             }
                         </td>
+                        counter++;
                     }
                 </tr>
             }
             </tbody>
         </table>
-    </div>
-    <h2>|        |</h2>
-    <div>
+   </div>
+    
+    <div class="col">
         <h2 class="text-center">Your board</h2>
         <table class="table table-bordered">
-            <thead>
+            <thead class="thead-dark">
             <tr>
-                @for (int y = 0; y < Index._brain.GetUserBoard().GetLength(1); y++)
+                <th scope="col">#</th>
+                @for (int x = 0; x < Index._brain.GetUserBoard().GetLength(0); x++)
                 {
-                    <th>
-                        @y
+                    <th scope="col">
+                        @Model.letters[x % 26]
                     </th>
                 }
             </tr>
@@ -65,10 +73,11 @@
             <tbody>
             @for (int y = 0; y < Index._brain.GetUserBoard().GetLength(1); y++)
             {
-                <tr style="height: 30px;">
+                <tr style="height: 50px; width: 50px;">
+                    <th class="bg-dark text-light" style="border: 1px solid #454d55" scope="row">@y</th>
                     @for (int x = 0; x < Index._brain.GetUserBoard().GetLength(0); x++)
                     {
-                        <td style="width: 30px;">
+                        <td style="height: 50px; width: 50px;">
                             @if (Index._brain.GetUserBoard()[x, y].IsShip)
                             {
                                 if (Index._brain.GetUserBoard()[x, y].IsBomb)
@@ -84,7 +93,7 @@
                             {
                                 if (!Index._brain.GetUserBoard()[x, y].IsShip)
                                 {
-                                    <text>-</text>  
+                                    <text>-</text>
                                 }
                             }
                             else
@@ -100,5 +109,5 @@
     </div>
 </div>
 <br/><br/>
-<button class="btn btn-primary" onclick="location.href='?qs=true'">Save and Exit</button> 
-
+<button class="btn btn-primary" onclick="location.href='?quit=1'">Save and Exit</button> 
+<button class="btn btn-primary" onclick="location.href='?quit=2'">Exit without Save</button> 

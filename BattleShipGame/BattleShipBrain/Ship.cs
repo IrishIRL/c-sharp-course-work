@@ -5,24 +5,21 @@ namespace BattleShipBrain
 {
     public class Ship
     {
-        public string Name { get; private set; }
-        
-        private readonly List<Coordinate> _coordinates;
-
-        public Ship(string name, List<Coordinate> position)
+        public string Name { get; set; }
+        public List<Coordinate> Coordinates { get; set; } = new List<Coordinate>();
+        public Ship(string name, List<Coordinate> coordinates)
         {
             Name = name;
-            _coordinates = position;
+            Coordinates = coordinates;
         }
-
-        public int GetShipSize() => _coordinates.Count;
+        public int GetShipSize() => Coordinates.Count;
         
         public int GetShipDamageCount(BoardSquareState[,] board) =>
             // count all the items that match the predicate
-            _coordinates.Count(coordinate => board[coordinate.X, coordinate.Y].IsBomb);
+            Coordinates.Count(coordinate => board[coordinate.X, coordinate.Y].IsBomb);
 
         public bool IsShipSunk(BoardSquareState[,] board) =>
             // returns true when all the items in the list match predicate
-            _coordinates.All(coordinate => board[coordinate.X, coordinate.Y].IsBomb);
+            Coordinates.All(coordinate => board[coordinate.X, coordinate.Y].IsBomb);
     }
 }

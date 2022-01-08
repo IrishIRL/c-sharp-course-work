@@ -4,8 +4,7 @@ namespace BattleShipBrain
 {
     public class GameBoard
     {
-        public BoardSquareState[,] Board { get; set; } = null!;
-        public List<Ship> Ships { get; set; } = default!;
-
+        public BoardSquareState[,] Board { get; set; } = default!;
+        public List<Ship> Ships { get; set; } = new List<Ship>();
     }
 }

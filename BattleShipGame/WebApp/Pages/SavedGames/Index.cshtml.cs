@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using DAL;
 using Domain;
 
+//TODO: Save to local
+
 namespace WebApp.Pages_SavedGames
 {
     public class IndexModel : PageModel

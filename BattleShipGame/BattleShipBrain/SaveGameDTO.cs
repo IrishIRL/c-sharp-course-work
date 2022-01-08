@@ -12,8 +12,8 @@ namespace BattleShipBrain
         
         public class GameBoardDto
         {
-            public List<List<BoardSquareState>>? Board { get; set; } = new List<List<BoardSquareState>>();
-            public List<Ship>? Ships { get; set; } = new List<Ship>(); //TODO: We should save the whole config, not the ships.
+            public List<List<BoardSquareState>> Board { get; set; } = new List<List<BoardSquareState>>();
+            public List<Ship> Ships { get; set; } = new List<Ship>(); 
         }
 
         public void SetGameBoard(GameBoard[] gameBoards)
@@ -39,13 +39,13 @@ namespace BattleShipBrain
             for (int i = 0; i < 2; i++)
             {
                 gameBoard[i] = new GameBoard();
-                var arrayGameBoard = new BoardSquareState[GameBoards[i].Board!.Count, GameBoards[i].Board![i].Count];
+                var arrayGameBoard = new BoardSquareState[GameBoards[i].Board.Count, GameBoards[i].Board[i].Count];
 
-                for (int x = 0; x < GameBoards[i].Board!.Count; x++)
+                for (int x = 0; x < GameBoards[i].Board.Count; x++)
                 {
-                    for (int y = 0; y < GameBoards[i].Board![y].Count-1; y++)
+                    for (int y = 0; y < GameBoards[i].Board[y].Count-1; y++)
                     {
-                        arrayGameBoard[x, y] = GameBoards[i].Board![x][y];
+                        arrayGameBoard[x, y] = GameBoards[i].Board[x][y];
                     }
                 }
             

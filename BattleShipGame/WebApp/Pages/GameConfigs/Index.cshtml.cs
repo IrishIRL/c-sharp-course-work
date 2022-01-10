@@ -20,7 +20,7 @@ namespace WebApp.Pages_GameConfigs
         }
 
         public IList<GameConfig> GameConfig { get; set; } = default!;
-
+        public static BattleShipBrain.GameConfig Conf { get; set; } = new  BattleShipBrain.GameConfig();
         public async Task OnGetAsync()
         {
             GameConfig = await _context.GameConfigs.ToListAsync();

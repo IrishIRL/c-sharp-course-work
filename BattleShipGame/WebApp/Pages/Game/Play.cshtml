@@ -32,9 +32,9 @@
                     {
                         <td style="height: 50px; width: 50px; cursor: pointer" onclick="window.location.href = '/Game/Play?cellId=@counter' ">
                             <!-- onclick="window.location.href = window.location.href + '&cellId=' -->
-                            @if (Index._brain.GetEnemyBoard()[x, y].IsBomb == true)
+                            @if (Index._brain.GetEnemyBoard()[x, y].IsBomb)
                             {
-                                if (Index._brain.GetEnemyBoard()[x, y].IsShip == true)
+                                if (Index._brain.GetEnemyBoard()[x, y].IsShip)
                                 {
                                     <text>X</text>
                                 }

@@ -13,6 +13,12 @@ namespace WebApp.Pages.Game
         public bool WrongLocation { get; set; }
         public char[] Letters { get; set; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
         
+        // resetGame is used to reset BsBrain in case we start a new game.
+        // playerChange is used to change between player 0 and player 1.
+        // configId is used to determine which config to use for the game.
+        // cellId is used to place ships.
+        // shipName is used to determine which ship we are placing.
+        // ready is used to determine when we can start the game.
         public void OnGet(bool resetGame, bool playerChange, int cellId, string shipName, bool ready)
         {
             if (ready)
@@ -26,7 +32,7 @@ namespace WebApp.Pages.Game
             {
                 Index._brain = new BsBrain(Index._conf);
             }
-            
+
             var list = new List<Coordinate>();
             int shipId = 0;
 
@@ -58,7 +64,6 @@ namespace WebApp.Pages.Game
                         }
                     }
                     
-                    
                     for (int y = 0; y < Index._brain.GetUserBoard().GetLength(1); y++)
                     {
                         for (int x = 0; x < Index._brain.GetUserBoard().GetLength(0); x++)
@@ -83,7 +88,7 @@ namespace WebApp.Pages.Game
                         }
                     }
 
-                    bool check = Index._brain.CheckCondition(list);
+                    bool check = Index._brain.CheckCondition(list, Index._conf);
 
                     if (check)
                     {

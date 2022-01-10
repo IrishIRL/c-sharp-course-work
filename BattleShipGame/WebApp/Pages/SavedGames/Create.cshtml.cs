@@ -34,6 +34,7 @@ namespace WebApp.Pages_SavedGames
                 return Page();
             }
 
+            GameSave.GameSaveDate = DateTime.Now;
             _context.SavedGames.Add(GameSave);
             await _context.SaveChangesAsync();
 

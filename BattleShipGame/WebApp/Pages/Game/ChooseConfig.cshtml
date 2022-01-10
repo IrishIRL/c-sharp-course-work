@@ -1,0 +1,96 @@
+﻿@page
+@model WebApp.Pages.Game.ChooseConfig
+
+@{
+    ViewData["Title"] = "ChooseConfig";
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<div>
+    <h3>Game config from database:</h3><br/>
+    <form method="get" action="../Game" class="text-center">
+        <!-- Making a dropdown could be not the best idea for big games, but I assume there will be not many game saves. -->
+        <div class="col-auto my-1">
+            IDs to pick from:
+            <select name="configId">
+                @foreach (var item in Model.GameConfig)
+                {
+                    <option value="@item.ConfigId">@item.ConfigId</option>
+                }
+            </select>
+            <br/><br/>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </form>
+    <br/>
+    <h3>Here you can see all your database saved configs:</h3>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.GameConfig[0].ConfigId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GameConfig[0].ConfigName)
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model.GameConfig) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ConfigId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ConfigName)
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    
+    <hr/>
+    <h3>Game config from local storage:</h3><br/>
+        <form method="get" action="../Game" class="text-center">
+            <!-- Making a dropdown could be not the best idea for big games, but I assume there will be not many game saves. -->
+            <div class="col-auto my-1">
+                Name to pick from:
+                <select name="configId">
+                    @foreach (var item in Model.LocalSavedFiles)
+                    {
+                        <option value="@item">@item</option>
+                    }
+                </select>
+                <br/><br/>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </form>
+        <br/>
+        <h3>Here you can see all your locally saved configs:</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.LocalSavedFiles)
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.LocalSavedFiles) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item)
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+</div>
+</body>
+</html>

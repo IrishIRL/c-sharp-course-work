@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Text.Json;
 using BattleShipBrain;
+using BattleShipConsoleApp;
 using Domain;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using GameConfig = BattleShipBrain.GameConfig;
@@ -10,18 +12,70 @@ namespace WebApp.Pages.Game
     {
         public static GameConfig _conf = new GameConfig();
         public static BsBrain _brain = new BsBrain(_conf);
+        public Domain.GameConfig GameConfig { get; set; } = default!;
         
         public int GameId { get; set; } = default!;
         
-        public void OnGet(int gameId)
+        private readonly DAL.ApplicationDbContext _context;
+
+        public Index(DAL.ApplicationDbContext context)
         {
-            if (gameId != null && gameId != 0)
+            _context = context;
+        }
+        
+        public void OnGet(string gameId, string configId)
+        {
+            int gameIdNumber;
+            bool isParsableGameNo = Int32.TryParse(gameId, out gameIdNumber);
+            bool zeroGame = isParsableGameNo && gameIdNumber == 0;
+            
+            int configIdNumber;
+            bool isParsableConfigNo = Int32.TryParse(configId, out configIdNumber);
+            bool zeroConfig = isParsableConfigNo && configIdNumber == 0;
+
+            if (gameId != null && !zeroGame)
             {
-                // loadWay 2 means load from database. savedGame takes id of the game in database.
+                int loadWay;
+                // loadWay 1 means load from local.
+                // loadWay 2 means load from database.
                 // runMethod could be both 0 or 1, but since we will try to load game only once, there is no need to set it to 0.
-                GameId = gameId;
-                int errorLogging = Index._brain.RestoreBrainFromJson(2, gameId.ToString(), 1);
+                if (isParsableGameNo)
+                {
+                    GameId = gameIdNumber;
+                    loadWay = 2;
+                }
+                else
+                {
+                    GameId = 1;
+                    loadWay = 1;
+                    gameId = GlobalVariables.ReturnGameSaveFolderLocation() + @"\" + gameId;
+                }
+
+                Console.WriteLine(gameId);
+                int errorLogging = Index._brain.RestoreBrainFromJson(loadWay, gameId, 1);
                 Console.WriteLine(errorLogging); // just for us to know, if this is eq to 0, then everything went well. 1 means error occured.
+            }
+
+            if (configId != null && !zeroConfig)
+            {
+                string confText = "";
+
+                if (isParsableConfigNo)
+                {
+                    var config = _context.GameConfigs.Find(configIdNumber);
+                    confText = config.ConfigJson;
+                }
+                else
+                {
+                    var configFile = GlobalVariables.ReturnConfigFolderLocation() + @"\" + configId;
+                    confText = System.IO.File.ReadAllText(configFile);
+                }
+
+                if (confText != "")
+                {
+                    _conf = JsonSerializer.Deserialize<GameConfig>(confText);
+                    Response.Redirect("Game/SetShips?resetGame=true");
+                }
             }
         }
     }

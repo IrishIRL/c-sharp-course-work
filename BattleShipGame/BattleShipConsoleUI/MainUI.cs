@@ -319,7 +319,6 @@ namespace BattleShipConsoleUI
             }
         }
 
-
         // SHIP PLACEMENT UI
         public static BsBrain PlaceShipUi(GameConfig conf)
         {
@@ -375,9 +374,8 @@ namespace BattleShipConsoleUI
                                     }
                                 }
 
-                                done = _brain.CheckCondition(list);
+                                done = _brain.CheckCondition(list, conf);
                                 i++;
-                            
                             } while (!done); 
                             
                             _brain.PlaceShip(conf.ShipConfigs[shipCount].Name, list);
@@ -400,6 +398,87 @@ namespace BattleShipConsoleUI
                     }
                 }
             }
+            
+            _brain._currentPlayerNo = 0;
+            return _brain;
+        }
+        
+        
+        // Random ship placement
+        public static BsBrain RandomShipPlacement(GameConfig config)
+        {
+            BsBrain _brain = new BsBrain(config);
+            bool brokenLoop = false;
+            do
+            {
+                brokenLoop = false;
+                _brain = new BsBrain(config);
+                for (int playerNo = 0; playerNo < 2; playerNo++)
+                {
+                    _brain._currentPlayerNo = playerNo;
+                    for (int shipCount = 0; shipCount < config.ShipConfigs.Count; shipCount++)
+                    {
+                        for (int shipQuantity = 0; shipQuantity < config.ShipConfigs[shipCount].Quantity; shipQuantity++)
+                        {
+                            var placedShip = false;
+                            var done = false;
+                            var list = new List<Coordinate>();
+                            int checkForPossibility = 0;
+
+                            do
+                            {
+                                list = new List<Coordinate>();
+                                int[] xy = new int[2];
+
+                                xy[0] = _brain._rnd.Next(0, config.BoardSizeX-config.ShipConfigs[shipCount].ShipSizeX);
+                                xy[1] = _brain._rnd.Next(0, config.BoardSizeY-config.ShipConfigs[shipCount].ShipSizeY+1);
+
+                                for (int sizeX = 0; sizeX < config.ShipConfigs[shipCount].ShipSizeX; sizeX++)
+                                {
+                                    for (int sizeY = 0;
+                                        sizeY < config.ShipConfigs[shipCount].ShipSizeY;
+                                        sizeY++)
+                                    {
+                                        list.Add(new Coordinate(
+                                            xy[1] + sizeY,
+                                            xy[0] + sizeX)
+                                        );
+                                    }
+                                }
+                                done = _brain.CheckCondition(list, config);
+                                
+                                if (!done)
+                                {
+                                    if (checkForPossibility > 10)
+                                    {
+                                        brokenLoop = true;
+                                        break;
+                                    }
+
+                                    checkForPossibility++;
+                                }
+                            } while (!done);
+
+                            if (!brokenLoop)
+                            {
+                                _brain.PlaceShip(config.ShipConfigs[shipCount].Name, list);
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        if (brokenLoop)
+                        {
+                            break;
+                        }
+                    }
+                    if (brokenLoop)
+                    {
+                        break;
+                    }
+                }
+            } while (brokenLoop);
             
             _brain._currentPlayerNo = 0;
             return _brain;

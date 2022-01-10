@@ -19,6 +19,7 @@ namespace WebApp.Pages
 
         public void OnGet()
         {
+            Response.Redirect("../Game");
         }
     }
 }

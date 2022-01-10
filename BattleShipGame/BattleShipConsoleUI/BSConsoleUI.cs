@@ -16,7 +16,7 @@ namespace BattleShipConsoleUI
             {
                 Console.Write("  {0} ", letters[xLoop % 26]);
             }
-            Console.Write("\n  ");
+            Console.Write("\n   ");
             for (int xLoop = 0; xLoop < board.GetLength(0); xLoop++)
             {
                 Console.Write("+ - ");
@@ -57,7 +57,7 @@ namespace BattleShipConsoleUI
                 Console.WriteLine("|");
             }
             
-            Console.Write("  ");
+            Console.Write("   ");
             for (int xLoop = 0; xLoop < board.GetLength(0); xLoop++)
             {
                 Console.Write("+ - ");

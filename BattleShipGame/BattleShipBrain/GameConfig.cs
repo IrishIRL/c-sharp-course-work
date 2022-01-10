@@ -5,8 +5,8 @@ namespace BattleShipBrain
 {
     public class GameConfig
     {
-        public int BoardSizeX { get; set; } = 10;
-        public int BoardSizeY { get; set; } = 10;
+        public int BoardSizeX { get; set; } = 7;
+        public int BoardSizeY { get; set; } = 7;
 
         public List<ShipConfig> ShipConfigs { get; set; } = new List<ShipConfig>()
         {
@@ -35,7 +35,7 @@ namespace BattleShipBrain
             {
                 Name = "Battleship",
                 Quantity = 1,
-                ShipSizeY =4,
+                ShipSizeY = 4,
                 ShipSizeX = 1,
             },
             new ShipConfig()

@@ -16,7 +16,7 @@ namespace BattleShipConsoleApp
             int touchRule = TouchRuleQuestion();
             ShipConfigQuestions(conf);
             
-            string confJsonStr = BsBrain.JsonBuilder(boardXyGrabbed, touchRule, conf);
+            string confJsonStr = BsBrain.JsonBuilder(boardXyGrabbed, touchRule, conf); // shouldn't be var _brain = new BsBrain() and _brain.JsonBuilder ???
             Console.WriteLine("Please input name of new config");
             var configName = Console.ReadLine()!.Trim();
             configName += ".json";
@@ -128,87 +128,5 @@ namespace BattleShipConsoleApp
                 } while (questionChecker);
             }
         }
-        
-        /*
-         * private static int[] SizeQuestions(int i)
-        {
-            var conf = new GameConfig();
-            string ship = "";
-
-            // DefaultSizes is a default ship which logically should be never built.
-            // But for security reasons let it be here.
-            int[] defaultSizes = {1, 1, 1};
-            
-            switch (i)
-            {
-                case 0:
-                    ship = conf.ShipConfigs[i].Name;
-                    defaultSizes[0] = conf.ShipConfigs[i].Quantity;
-                    defaultSizes[1] = conf.ShipConfigs[i].ShipSizeX;
-                    defaultSizes[2] = conf.ShipConfigs[i].ShipSizeY;
-                    break;
-                case 1:
-                    ship = conf.ShipConfigs[i].Name;
-                    defaultSizes[0] = conf.ShipConfigs[i].Quantity;
-                    defaultSizes[1] = conf.ShipConfigs[i].ShipSizeX;
-                    defaultSizes[2] = conf.ShipConfigs[i].ShipSizeY;
-                    break;
-                case 2:
-                    ship = conf.ShipConfigs[i].Name;
-                    defaultSizes[0] = conf.ShipConfigs[i].Quantity;
-                    defaultSizes[1] = conf.ShipConfigs[i].ShipSizeX;
-                    defaultSizes[2] = conf.ShipConfigs[i].ShipSizeY;
-                    break;
-                case 3:
-                    ship = conf.ShipConfigs[i].Name;
-                    defaultSizes[0] = conf.ShipConfigs[i].Quantity;
-                    defaultSizes[1] = conf.ShipConfigs[i].ShipSizeX;
-                    defaultSizes[2] = conf.ShipConfigs[i].ShipSizeY;
-                    break;
-                case 4:
-                    ship = conf.ShipConfigs[i].Name;
-                    defaultSizes[0] = conf.ShipConfigs[i].Quantity;
-                    defaultSizes[1] = conf.ShipConfigs[i].ShipSizeX;
-                    defaultSizes[2] = conf.ShipConfigs[i].ShipSizeY;
-                    break;
-            }
-            
-            bool checker = true;
-            do
-            {
-                Console.WriteLine("Input name for the ship: {0}. Normally X is: {1}", ship, defaultSizes[0]);
-                var shipName = Console.ReadLine()?.Trim();
-                Console.WriteLine("Input Size X for ship: {0}. Normally X is: {1}", ship, defaultSizes[0]);
-                var x = Console.ReadLine()?.Trim();
-                int.TryParse(x, out var xConverted);
-                Console.WriteLine("Input Size Y for ship: {0}. Normally Y is: {1}", ship, defaultSizes[1]);
-                var y = Console.ReadLine()?.Trim();
-                int.TryParse(y, out var yConverted);
-                Console.WriteLine("Input Quantity of ships: {0}. Normally Quantity is: {1}", ship, defaultSizes[2]);
-                var q = Console.ReadLine()?.Trim();
-                int.TryParse(q, out var qConverted);
-
-                if (conf.BoardSizeX > xConverted && xConverted > 0 && conf.BoardSizeY > yConverted && yConverted > 0 && qConverted > 0)
-                {
-                    int[] xyq = new int[3];
-                    xyq[0] = xConverted;
-                    xyq[1] = yConverted;
-                    xyq[2] = qConverted;
-                    //return xyq;
-                    
-                    // conf.ShipConfigs[i].ShipSizeX = xyzGrabbed[0];
-                    // conf.ShipConfigs[i].ShipSizeY = xyzGrabbed[1];
-                    
-                    var ship = new Ship();
-                }
-                else
-                {
-                    Console.WriteLine("Please input the correct numbers!");
-                }
-            } while (checker);
-
-            return defaultSizes;
-        }
-         */
     }
 }

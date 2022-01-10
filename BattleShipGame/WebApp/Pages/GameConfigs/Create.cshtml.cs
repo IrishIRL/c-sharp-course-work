@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using BattleShipBrain;
 using Microsoft.AspNetCore.Mvc;
@@ -14,17 +15,31 @@ namespace WebApp.Pages_GameConfigs
 {
     public class CreateModel : PageModel
     {
-        public static BattleShipBrain.GameConfig _conf = new BattleShipBrain.GameConfig();
-        public static BattleShipBrain.BsBrain _brain = new BattleShipBrain.BsBrain(_conf);
-
-        private int BoardSizeX { get; set; } = 10;
-        private int BoardSizeY { get; set; } = 10;
-        private int EShipTouchRuleInt { get; set; } = 0;
-        private string ShipName { get; set; } = "";
+        [BindProperty]
+        public EShipTouchRule EShipTouchRuleReceived { get; set; }
         
-        private int ShipSizeX { get; set; } = 1;
-        private int ShipSizeY { get; set; } = 1;
-        private int ShipCount { get; set; } = 1;
+        [BindProperty]
+        public int BoardSizeX { get; set; } = 10;
+        
+        [BindProperty]
+        public int BoardSizeY { get; set; } = 10;
+        
+        [BindProperty]
+        public string ShipName { get; set; } = "";
+        
+        [BindProperty]
+        public int ShipSizeX { get; set; } = 1;
+        
+        [BindProperty]
+        public int ShipSizeY { get; set; } = 1;
+        
+        [BindProperty]
+        public int ShipCount { get; set; } = 1;
+        
+        public bool FirstTime { get; set; } = true;
+        
+        [BindProperty]
+        public GameConfig GameConfig { get; set; } = default!;
         
         
         private readonly DAL.ApplicationDbContext _context;
@@ -38,32 +53,20 @@ namespace WebApp.Pages_GameConfigs
         {
             return Page();
         }
-
-        [BindProperty]
-        public GameConfig GameConfig { get; set; } = default!;
-
-        // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
-        public async Task<IActionResult> OnPostAsync()
+        public void OnPostBaseParams()
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+            IndexModel.Conf.ShipConfigs.Clear();
             
-            _conf.BoardSizeX = BoardSizeX;
-            _conf.BoardSizeY = BoardSizeY;
-            switch (EShipTouchRuleInt)
-            {
-                case 0:
-                    _conf.EShipTouchRule = EShipTouchRule.NoTouch;
-                    break;
-                case 1:
-                    _conf.EShipTouchRule = EShipTouchRule.CornerTouch;
-                    break;
-                case 2:
-                    _conf.EShipTouchRule = EShipTouchRule.SideTouch;
-                    break;
-            }
+            IndexModel.Conf.BoardSizeX = BoardSizeX;
+            IndexModel.Conf.BoardSizeY = BoardSizeY;
+            IndexModel.Conf.EShipTouchRule = EShipTouchRuleReceived;
+            FirstTime = false;
+        }
+        public void OnPostAddShip()
+        {
+            Console.WriteLine(IndexModel.Conf.BoardSizeX);
+            Console.WriteLine(IndexModel.Conf.BoardSizeY);
+            Console.WriteLine(IndexModel.Conf.EShipTouchRule);
             
             var shipConfig = new BattleShipBrain.ShipConfig()
             {
@@ -73,12 +76,30 @@ namespace WebApp.Pages_GameConfigs
                 Quantity = ShipCount
             };
             
-            _conf.ShipConfigs.Add(shipConfig);
+            IndexModel.Conf.ShipConfigs.Add(shipConfig);
+            FirstTime = false;
+        }
+
+        // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+        // public async Task<IActionResult> OnPostUploadConfig()
+        public void OnPostUploadConfig()
+        {
+            var jsonOptions = new JsonSerializerOptions()
+            {
+                WriteIndented = true
+            };
+
+            var confJsonStr = JsonSerializer.Serialize(IndexModel.Conf, jsonOptions);
+
+            GameConfig.ConfigJson = confJsonStr;
+            GameConfig.ConfigBuildDate = DateTime.Now;
 
             _context.GameConfigs.Add(GameConfig);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
+            
+            //await _context.SaveChangesAsync();
 
-            return RedirectToPage("./Index");
+            //return RedirectToPage("./Index");
         }
     }
 }

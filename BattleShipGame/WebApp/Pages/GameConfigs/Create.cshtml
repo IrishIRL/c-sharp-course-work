@@ -1,46 +1,87 @@
 @page
+@using System.Data
+@using BattleShipBrain
+@using Microsoft.CodeAnalysis.CSharp
 @model WebApp.Pages_GameConfigs.CreateModel
 
 @{
     ViewData["Title"] = "Create - Game Configs";
 }
 
-<h1>Create</h1>
-
+    <h1>Create</h1>
 <h4>GameConfig</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
+        
+        @{
+            if (Model.FirstTime)
+            {
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="BoardSizeX" class="control-label"></label>
+                        <input asp-for="BoardSizeX" class="form-control" />
+                        <span asp-validation-for="BoardSizeX" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="BoardSizeY" class="control-label"></label>
+                        <input asp-for="BoardSizeY" class="form-control" />
+                        <span asp-validation-for="BoardSizeY" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EShipTouchRuleReceived" class="control-label"></label>
+                        <select asp-for="EShipTouchRuleReceived" asp-items="Html.GetEnumSelectList<EShipTouchRule>()" class="form-control"></select>
+                        <span asp-validation-for="EShipTouchRuleReceived" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" asp-page-handler="BaseParams" value="Create" class="btn btn-primary" />
+                    </div>
+                </form>
+            }
+            else
+            {
+               <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ShipName" class="control-label"></label>
+                <input asp-for="ShipName" class="form-control" />
+                <span asp-validation-for="ShipName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShipSizeX" class="control-label"></label>
+                <input asp-for="ShipSizeX" class="form-control" />
+                <span asp-validation-for="ShipSizeX" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShipSizeY" class="control-label"></label>
+                <input asp-for="ShipSizeY" class="form-control" />
+                <span asp-validation-for="ShipSizeY" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ShipCount" class="control-label"></label>
+                <input asp-for="ShipCount" class="form-control" />
+                <span asp-validation-for="ShipCount" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <input type="submit" asp-page-handler="AddShip" value="Add New Ship" class="btn btn-primary" />
+            </div>
+        </form>
+        
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="GameConfig.ConfigName" class="control-label"></label>
-                <input asp-for="GameConfig.ConfigName" class="form-control" />
+                <input asp-for="GameConfig.ConfigName" class="form-control"/>
                 <span asp-validation-for="GameConfig.ConfigName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="GameConfig.ConfigJson" class="control-label"></label>
-                <input asp-for="GameConfig.ConfigJson" class="form-control"/>
-                <span asp-validation-for="GameConfig.ConfigJson" class="text-danger"></span>
+                <input type="submit" asp-page-handler="UploadConfig" value="Create" class="btn btn-primary"/>
             </div>
-            
-            <!--
-            <div class="form-group">
-                <label asp-for="" class="control-label"></label>
-                <input asp-for="" class="form-control"/>
-                <span asp-validation-for="" class="text-danger"></span>
-            </div>
-            -->
-
-            <div class="form-group">
-                <label asp-for="GameConfig.ConfigBuildDate" class="control-label"></label>
-                <input asp-for="GameConfig.ConfigBuildDate" class="form-control" />
-                <span asp-validation-for="GameConfig.ConfigBuildDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </form> 
+            }
+        }
     </div>
 </div>
 

@@ -12,21 +12,21 @@
 </p>
 <table class="table">
     <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.GameConfig[0].ConfigId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GameConfig[0].ConfigName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GameConfig[0].ConfigBuildDate)
-            </th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.GameConfig[0].ConfigId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.GameConfig[0].ConfigName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.GameConfig[0].ConfigBuildDate)
+        </th>
+        <th></th>
+    </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.GameConfig) {
+    @foreach (var item in Model.GameConfig) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.ConfigId)
@@ -43,6 +43,7 @@
                 <a asp-page="./Delete" asp-route-id="@item.ConfigId">Delete</a>
             </td>
         </tr>
-}
+    }
     </tbody>
 </table>
+<a asp-page="../Settings">Back to Settings</a>

@@ -12,9 +12,9 @@ namespace BattleShipBrain
     public class BsBrain
     {
         public int _currentPlayerNo = 0;
-        private GameBoard[] _gameBoards = new GameBoard[2];
+        public GameBoard[] _gameBoards = new GameBoard[2];
         private EShipTouchRule _rule = new EShipTouchRule();
-        private readonly Random _rnd = new Random();
+        public readonly Random _rnd = new Random();
 
         public BsBrain(GameConfig config)
         {
@@ -23,24 +23,6 @@ namespace BattleShipBrain
 
             _gameBoards[0].Board = new BoardSquareState[config.BoardSizeX, config.BoardSizeY];
             _gameBoards[1].Board = new BoardSquareState[config.BoardSizeX, config.BoardSizeY];
-
-            /* Random ship placement
-            for (var x = 0; x < config.BoardSizeX; x++)
-            {
-                for (var y = 0; y < config.BoardSizeY; y++)
-                {
-                    _gameBoards[0].Board[x, y] = new BoardSquareState
-                    {
-                        IsShip = _rnd.Next(0, 2) != 0
-                    };
-                    
-                    _gameBoards[1].Board[x, y] = new BoardSquareState
-                    {
-                        IsShip = _rnd.Next(0, 2) != 0
-                    };
-                }
-            }
-            */
         }
 
         // Function that converts Zero to One and One to Zero
@@ -72,7 +54,7 @@ namespace BattleShipBrain
         }
 
         // Check condition is used to check if it is possible to place ships in such place or not.
-        public bool CheckCondition(List<Coordinate> coordinates)
+        public bool CheckCondition(List<Coordinate> coordinates, GameConfig config)
         {
             foreach (var coordinate in coordinates)
             {
@@ -90,26 +72,26 @@ namespace BattleShipBrain
                     case EShipTouchRule.NoTouch:
                         try
                         {
-                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y].IsShip)
+                            if (coordinate.X+1 < config.BoardSizeX && _gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y].IsShip)
                                 return false;
-                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y + 1].IsShip)
+                            if (coordinate.Y+1 < config.BoardSizeY && _gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y + 1].IsShip)
                                 return false;
-                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y].IsShip)
+                            if (coordinate.X-1 >= 0 && _gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y].IsShip)
                                 return false;
-                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y - 1].IsShip)
+                            if (coordinate.Y-1 >= 0 && _gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y - 1].IsShip)
                                 return false;
-                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y + 1].IsShip)
+                            if (coordinate.X+1 < config.BoardSizeX && coordinate.Y+1 < config.BoardSizeY && _gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y + 1].IsShip)
                                 return false;
-                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y - 1].IsShip)
+                            if (coordinate.X+1 < config.BoardSizeX && coordinate.Y-1 >= 0 && _gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y - 1].IsShip)
                                 return false;
-                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y + 1].IsShip)
+                            if (coordinate.X-1 >= 0 && coordinate.Y+1 < config.BoardSizeY && _gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y + 1].IsShip)
                                 return false;
-                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y - 1].IsShip)
+                            if (coordinate.X-1 >= 0 && coordinate.Y-1 >= 0 && _gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y - 1].IsShip)
                                 return false;
                         }
                         catch
                         {
-                            // ignored (return true);
+                            return false;
                         }
 
                         break;
@@ -117,22 +99,22 @@ namespace BattleShipBrain
                     case EShipTouchRule.CornerTouch:
                         try
                         {
-                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y].IsShip)
+                            if (coordinate.X+1 < config.BoardSizeX && _gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y].IsShip)
                                 return false;
-                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y + 1].IsShip)
+                            if (coordinate.Y+1 < config.BoardSizeY && _gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y + 1].IsShip)
                                 return false;
-                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y].IsShip)
+                            if (coordinate.X-1 >= 0 && _gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y].IsShip)
                                 return false;
-                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y - 1].IsShip)
+                            if (coordinate.Y-1 >= 0 && _gameBoards[_currentPlayerNo].Board[coordinate.X, coordinate.Y - 1].IsShip)
                                 return false;
-                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y + 1].IsShip)
+                            if (coordinate.X+1 < config.BoardSizeX && coordinate.Y+1 < config.BoardSizeY && _gameBoards[_currentPlayerNo].Board[coordinate.X + 1, coordinate.Y + 1].IsShip)
                                 return false;
-                            if (_gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y - 1].IsShip)
+                            if (coordinate.X-1 >= 0 && coordinate.Y-1 >= 0 && _gameBoards[_currentPlayerNo].Board[coordinate.X - 1, coordinate.Y - 1].IsShip)
                                 return false;
                         }
                         catch
                         {
-                            // ignored (return true);
+                            return false;
                         }
 
                         break;
@@ -151,6 +133,7 @@ namespace BattleShipBrain
             return false;
         }
 
+        // Check if the following coordinate has bomb or not. 
         public bool CheckForBomb(int x, int y)
         {
             if (x > -1 && y > -1)
@@ -226,13 +209,12 @@ namespace BattleShipBrain
         // Restore game from Game Save - both Local and Database (depending on which you choose on start).
         // The logic is: we pass savedGameFile and loadWay.
         // loadWay: on first, if it is eq 1, then load from local. If it is eq 2, then load from database. 
-        // savedGame = full location to the game save file in case we parse 
+        // savedGame = full location to the game save file in case we parse from local. In case we parse from the Databse, then it is the id of the game.
         // runMethod is the way of running. First time we run it with 0. If we did not succeed, then player could try to search for the saved game with another method (if it was local -> database, if database -> local).
         // return integer is used, to understand success of the operation.
         public int RestoreBrainFromJson(int loadWay, string savedGame, int runMethod)
         {
             string json = "";
-            
 
             // Initial load using the way the user chose (Local / Database).
             if (runMethod == 0)
@@ -311,7 +293,7 @@ namespace BattleShipBrain
             return json;
         }
         
-        //Proper JsonBuilder
+        // Proper JsonBuilder
         public static string JsonBuilder(int[] boardXyGrabbed, int touchRule, GameConfig conf)
         {
             conf.BoardSizeX = boardXyGrabbed[0];

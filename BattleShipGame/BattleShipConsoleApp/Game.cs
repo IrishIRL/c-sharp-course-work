@@ -8,10 +8,9 @@ using BattleShipConsoleUI;
 namespace BattleShipConsoleApp
 {
     //TODO: Main button does not work
-    //TODO: Random ship placement
-    //TODO: Json in web
-    //TODO: Web build config
-    //TODO: Fix load saved game
+    //TODO: Check possibility of ship placement 
+    //TODO: Check ship amount web
+    //TODO: Letters to Numbers // Numbers to Letters
     public class Game
     {
         private GameConfig _conf = default!;
@@ -28,14 +27,29 @@ namespace BattleShipConsoleApp
             {
                 LoadGameConfig();
                 _brain = new BsBrain(_conf);
-                _brain = MainUI.PlaceShipUi(_conf);
+                if (RandomGame() == 1)
+                {
+                    _brain = MainUI.RandomShipPlacement(_conf);
+                    //Console.ReadLine();
+                }
+                else
+                {
+                    _brain = MainUI.PlaceShipUi(_conf); 
+                }
+            }
+            else
+            {
+                // In case we start game with the ready board, then we do not use config at the build stage.
+                // That means all the data there is still old. Since I use _conf.BoardSizes in other places,
+                // I decided to fix boardSizes here.
+                _conf.BoardSizeX = _brain._gameBoards[_brain._currentPlayerNo].Board.GetLength(0);
+                _conf.BoardSizeY = _brain._gameBoards[_brain._currentPlayerNo].Board.GetLength(1);
             }
             
             Console.Clear();
             do
             {
                 closeCondition = ChoosePlaceToPlantBomb();
-
                 _brain._currentPlayerNo = _brain.OneToZero(_brain._currentPlayerNo);
             } while (closeCondition == 0);
 
@@ -52,6 +66,18 @@ namespace BattleShipConsoleApp
             string confFile = MainUI.LoadLocalConfigUi();
             var confText = File.ReadAllText(confFile);
             _conf = JsonSerializer.Deserialize<GameConfig>(confText);
+        }
+
+        public int RandomGame()
+        {
+            Console.WriteLine("Do you want to make a random game? (y/N)");
+            var yesNo = Console.ReadKey(true);
+            if (yesNo.Key.ToString().ToLower() == "y")
+            {
+                return 1;
+            }
+
+            return 0;
         }
 
         // Load Saved Game
@@ -91,16 +117,49 @@ namespace BattleShipConsoleApp
                 // DECLARATIONS END
                 
                 Console.Clear();
+                
                 if (hitCondition)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("You shot the ship! Choose the next place to shoot.");
                     Console.ForegroundColor = ConsoleColor.White;
                 }
+                
+                // VISUALIZER START //
                 Console.WriteLine("Current Player: {0}", _brain._currentPlayerNo + 1);
+                Console.WriteLine("\n");
+                for (int i = 0; i < _conf.BoardSizeX*5+10; i++)
+                {
+                    Console.Write("="); 
+                }
+                Console.WriteLine("\nYour board");
+                for (int i = 0; i < _conf.BoardSizeX*5+10; i++)
+                {
+                    Console.Write("="); 
+                }
+                Console.WriteLine("\n");
+                BSConsoleUI.DrawBoard(false, _brain.GetUserBoard());
+                Console.WriteLine("\n");
+                for (int i = 0; i < _conf.BoardSizeX*5+10; i++)
+                {
+                    Console.Write("="); 
+                }
+                
+                Console.WriteLine("\nYour enemies board");
+                for (int i = 0; i < _conf.BoardSizeX*5+10; i++)
+                {
+                    Console.Write("="); 
+                }
+                Console.WriteLine("\n");
                 BSConsoleUI.DrawBoard(true, _brain.GetEnemyBoard());
-                Console.WriteLine("Write e to exit the game. Write s to exit and save the game.");
-
+                Console.WriteLine("\n");
+                for (int i = 0; i < _conf.BoardSizeX*5+10; i++)
+                {
+                    Console.Write("="); 
+                }
+                Console.WriteLine("\nWrite e to exit the game. Write s to exit and save the game."); 
+                // VISUALIZER END //
+                
                 do
                 {
                     if(correctLocation) { Console.ForegroundColor = ConsoleColor.Red; Console.WriteLine("Please input place that you did not bomb yet!"); Console.ForegroundColor = ConsoleColor.White; }

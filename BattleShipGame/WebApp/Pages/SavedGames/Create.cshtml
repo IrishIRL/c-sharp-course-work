@@ -14,14 +14,10 @@
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="GameSave.SavedGame" class="control-label"></label>
-                <input asp-for="GameSave.SavedGame" class="form-control" />
+                <a>Please input correct json data into next field:</a><br/>
+                <!--<label asp-for="GameSave.SavedGame" class="control-label"></label>-->
+                <input asp-for="GameSave.SavedGame" class="form-control"/>
                 <span asp-validation-for="GameSave.SavedGame" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="GameSave.GameSaveDate" class="control-label"></label>
-                <input asp-for="GameSave.GameSaveDate" class="form-control" />
-                <span asp-validation-for="GameSave.GameSaveDate" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

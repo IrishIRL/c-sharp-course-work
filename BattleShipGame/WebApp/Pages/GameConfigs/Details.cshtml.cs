@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using BattleShipBrain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using DAL;
-using Newtonsoft.Json;
 using GameConfig = Domain.GameConfig;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using ShipConfig = Domain.ShipConfig;
@@ -16,7 +14,7 @@ namespace WebApp.Pages_GameConfigs
 {
     public class DetailsModel : PageModel
     {
-        private readonly DAL.ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
         [BindProperty]
         public EShipTouchRule EShipTouchRuleReceived { get; set; }
@@ -70,14 +68,14 @@ namespace WebApp.Pages_GameConfigs
                 Console.WriteLine(IndexModel.Conf.ShipConfigs.Count);
                 Console.WriteLine(IndexModel.Conf.ShipConfigs[0].Name);
                 Console.WriteLine(IndexModel.Conf.ShipConfigs[1].Name);
-                for (int i = 0; i < IndexModel.Conf.ShipConfigs.Count; i++)
+                foreach (var ship in IndexModel.Conf.ShipConfigs)
                 {
                     var shipConfig = new ShipConfig
                     {
-                        ShipName = IndexModel.Conf.ShipConfigs[i].Name,
-                        ShipSizeX = IndexModel.Conf.ShipConfigs[i].ShipSizeX,
-                        ShipSizeY = IndexModel.Conf.ShipConfigs[i].ShipSizeY,
-                        ShipQuantity = IndexModel.Conf.ShipConfigs[i].Quantity
+                        ShipName = ship.Name,
+                        ShipSizeX = ship.ShipSizeX,
+                        ShipSizeY = ship.ShipSizeY,
+                        ShipQuantity = ship.Quantity
                     };
                     ShipConfigs.Add(shipConfig);
                 }

@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-// TODO: Make return to M actually work
-
 namespace MenuSystem
 {
     public class Menu
@@ -20,7 +18,7 @@ namespace MenuSystem
 
         private readonly string _title;
 
-        private static string _inputGrabber = "Welcome to BattleShip Game!"; 
+        private static string _returnMessage = "Welcome to BattleShip Game!"; 
         public Menu(string title, EMenuLevel menuLevel)
         {
             _title = title;
@@ -79,8 +77,8 @@ namespace MenuSystem
 
         public string Run()
         {
-            bool runDone;
             var input = "";
+            bool runDone;
             do
             {
                 Console.Clear();
@@ -92,7 +90,17 @@ namespace MenuSystem
                 {
                     var item = _menuItems.FirstOrDefault(t => t.ShortCut.ToUpper() == input);
                     input = item?.RunMethod==null ? input : item.RunMethod();
-                    _inputGrabber = input;
+                    if (input == "Main"  && _menuLevel != EMenuLevel.Root)
+                    {
+                        return "Main";
+                    }
+
+                    _returnMessage = input;
+                }
+                else if (_menuSpecialShortCuts.Contains(input))
+                {
+                    if (input == _menuItemReturn.ShortCut.ToUpper()) return "Returned!";
+                    if (input == _menuItemMain.ShortCut.ToUpper()) return "Main";
                 }
                 
                 runDone = _menuSpecialShortCuts.Contains(input);
@@ -104,8 +112,9 @@ namespace MenuSystem
 
             } while (!runDone);
 
-            if (input == _menuItemReturn.ShortCut.ToUpper()) return _inputGrabber;
-
+            //if (input == _menuItemReturn.ShortCut.ToUpper()) return "Returned!";
+            //if (input == _menuItemMain.ShortCut.ToUpper()) return input;
+            
             return input;
         }
         
@@ -113,7 +122,7 @@ namespace MenuSystem
         {
             Console.WriteLine("====> " + _title + " <====");
             Console.WriteLine("-------------------");
-            Console.WriteLine(_inputGrabber);
+            Console.WriteLine(_returnMessage);
             foreach (var t in _menuItems)
             {
                 Console.WriteLine(t);

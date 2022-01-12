@@ -6,39 +6,37 @@ using System.Text.Json;
 using BattleShipBrain;
 using BattleShipConsoleApp;
 using DAL;
-using Microsoft.Extensions.Configuration;
 
 namespace BattleShipConsoleUI
 {
     public class MainUI
     {
         // Different ways of game closure (Win/ Exit without save/ Exit with save)
-        public static string GameClosure(BsBrain _brain, int closeCondition)
+        public static string GameClosure(BsBrain brain, int closeCondition)
         {
-            int currentPlayer = _brain._currentPlayerNo + 1;
-            if (closeCondition == 1) return ("Congratulations player " + currentPlayer + "!");
+            int currentPlayer = brain.CurrentPlayerNo + 1;
+            if (closeCondition == 1) return ("Congratulations Player " + currentPlayer + ", you won!");
             if (closeCondition == -1) return "Exited Game.";
-            if (closeCondition == -2) SaveGameUi(_brain);
+            if (closeCondition == -2) SaveGameUi(brain);
             return "Exited and Saved the Game!";
         }
 
         // Exit with save opens -> saveGameUi
-        public static void SaveGameUi(BsBrain _brain)
+        public static void SaveGameUi(BsBrain brain)
         {
-            string nameOfGame = "default";
             Console.WriteLine(
                 "Do you want to make:\n1. Local save\n2. Database save\n3. Both Local and Database saves.\nIn case you do not want to save the game - pick any other number.");
             var saveDecision = Console.ReadLine();
             int.TryParse(saveDecision, out var saveDecisionParsed);
 
             Console.WriteLine("Which name would you like to set for the Game Save?");
-            nameOfGame = Console.ReadLine()!;
+            string nameOfGame = Console.ReadLine()!;
 
-            _brain.GetBrainJson(saveDecisionParsed, nameOfGame);
+            brain.GetBrainJson(saveDecisionParsed, nameOfGame);
         }
 
         // Load Saved Game from both Local and Database copies 
-        public static int LoadSavedGameUi(BsBrain _brain)
+        public static int LoadSavedGameUi(BsBrain brain)
         {
             string nameOfGame = "";
 
@@ -72,7 +70,7 @@ namespace BattleShipConsoleUI
 
             if (nameOfGame != "")
             {
-                returnSuccess = _brain.RestoreBrainFromJson(saveDecisionParsed, nameOfGame, 0);
+                returnSuccess = brain.RestoreBrainFromJson(saveDecisionParsed, nameOfGame, 0);
             }
 
             if (returnSuccess == 2)
@@ -104,7 +102,7 @@ namespace BattleShipConsoleUI
                             break;
                     }
 
-                    returnSuccess = _brain.RestoreBrainFromJson(saveDecisionParsed, nameOfGame, 1);
+                    returnSuccess = brain.RestoreBrainFromJson(saveDecisionParsed, nameOfGame, 1);
                 }
             }
 
@@ -131,9 +129,10 @@ namespace BattleShipConsoleUI
 
             int counter = 0;
             int amountOfGameSavesFound = 0;
-
             string[] files = Directory.GetFiles(GlobalVariables.ReturnGameSaveFolderLocation());
-
+            int longestEntryId = 0;
+            int longestEntryName = 0;
+            
             if (files.Length != 0)
             {
                 Console.WriteLine(
@@ -142,13 +141,50 @@ namespace BattleShipConsoleUI
                 var yesNoSeeGameSave = Console.ReadKey(true);
                 if (yesNoSeeGameSave.Key.ToString().ToLower() != "n")
                 {
-                    Console.WriteLine("No. | Game Save Name");
-                    foreach (string file in files)
+                    foreach (var entry in GlobalVariables.ReturnCutNames(1))
                     {
                         amountOfGameSavesFound++;
-                        Console.WriteLine(amountOfGameSavesFound + " | " + file);
+                        if (amountOfGameSavesFound.ToString().Length > longestEntryId) longestEntryId = amountOfGameSavesFound.ToString().Length;
+                        if (entry.Length > longestEntryName) longestEntryName = entry.Length;
                     }
+                    
+                    Console.Write("+-No");
+                    for (int i = "+-No".Length; i < longestEntryId + 6; i++)
+                    {
+                        Console.Write("-");
+                    }
+                    Console.Write("Game Save Name");
+                    for (int i = "Game Save Name".Length; i < longestEntryName + 4; i++)
+                    {
+                        Console.Write("-");
+                    }
+                    Console.Write("+\n");
 
+                    amountOfGameSavesFound = 0;
+                    
+                    foreach (var file in GlobalVariables.ReturnCutNames(1))
+                    {
+                        amountOfGameSavesFound++;
+                        Console.Write($"| {amountOfGameSavesFound}");
+                        for (int i = amountOfGameSavesFound.ToString().Length; i < longestEntryId + 4; i++)
+                        {
+                            Console.Write(" ");
+                        }
+                        Console.Write(file);
+                        for (int i = file.Length; i < longestEntryName + 4; i++)
+                        {
+                            Console.Write(" ");
+                        }
+                        Console.Write("|\n");
+                    }
+                    Console.Write("+");
+                    for (int i = 0; i < longestEntryId + longestEntryName + 9; i++)
+                    {
+                        Console.Write("-");
+                    }
+                    Console.WriteLine("+");
+                    
+                    
                     Console.WriteLine("Please input game save No. you want to use:");
                     var gameSaveToUseNumber = Console.ReadLine()?.Trim();
                     int.TryParse(gameSaveToUseNumber, out var gameSaveToUseNumberConverted);
@@ -179,16 +215,56 @@ namespace BattleShipConsoleUI
             {
                 if (db.SavedGames.Any())
                 {
-                    Console.WriteLine("Currently there are {0}  in the database. Do you want to see all of them? (Y/n)",
+                    Console.WriteLine("Currently there are {0} in the database. Do you want to see all of them? (Y/n)",
                         db.SavedGames.Count());
                     var yesNo = Console.ReadKey(true);
                     if (yesNo.Key.ToString().ToLower() != "n")
                     {
-                        Console.WriteLine("No - Date of Save");
+                        
+                        int longestEntryId = 0;
+                        int longestGameSaveDate = 0;
+                        
                         foreach (var entry in db.SavedGames)
                         {
-                            Console.WriteLine($" {entry.SavedGameId} - {entry.GameSaveDate}");
+                            if (entry.SavedGameId.ToString().Length > longestEntryId) longestEntryId = entry.SavedGameId.ToString().Length;
+                            if (entry.GameSaveDate.ToString().Length > longestGameSaveDate) longestGameSaveDate = entry.GameSaveDate.ToString().Length;
                         }
+
+                        Console.Write("+-Game ID");
+                        for (int i = 0; i < longestEntryId; i++)
+                        {
+                            Console.Write("-");
+                        }
+
+                        Console.Write("Game Save Date");
+                        for (int i = "Game Save Date".Length; i < longestGameSaveDate + 2; i++)
+                        {
+                            Console.Write("-");
+                        }
+
+                        Console.Write("+\n");
+                        foreach (var entry in db.SavedGames)
+                        {
+                            Console.Write($"| {entry.SavedGameId}");
+                            for (int i = entry.SavedGameId.ToString().Length; i < longestEntryId + "Game ID".Length; i++)
+                            {
+                                Console.Write(" ");
+                            }
+
+                            Console.Write($"{entry.GameSaveDate}");
+                            for (int i = entry.GameSaveDate.ToString().Length; i < longestGameSaveDate + 1; i++)
+                            {
+                                Console.Write(" ");
+                            }
+
+                            Console.Write(" |\n");
+                        }
+                        Console.Write("+");
+                        for (int i = 0; i < longestEntryId + longestGameSaveDate + " Game ID".Length + 2; i++)
+                        {
+                            Console.Write("-");
+                        }
+                        Console.WriteLine("+");
                     }
 
                     Console.WriteLine("Which one would you like to pick? Input correct No.");
@@ -322,10 +398,10 @@ namespace BattleShipConsoleUI
         // SHIP PLACEMENT UI
         public static BsBrain PlaceShipUi(GameConfig conf)
         {
-            BsBrain _brain = new BsBrain(conf);
+            BsBrain brain = new BsBrain(conf);
             for (int playerNo = 0; playerNo < 2; playerNo++)
             {
-                _brain._currentPlayerNo = playerNo;
+                brain.CurrentPlayerNo = playerNo;
                 for (int shipCount = 0; shipCount < conf.ShipConfigs.Count; shipCount++)
                 {
                     for (int shipQuantity = 0; shipQuantity < conf.ShipConfigs[shipCount].Quantity; shipQuantity++)
@@ -333,7 +409,8 @@ namespace BattleShipConsoleUI
                         var placedShip = false;
                         do
                         {
-                            var done = false;
+                            bool done;
+                            char[] letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
                             var list = new List<Coordinate>();
                             int i = 0; // small counter to check if the user did not input the correct coordinates
                             do
@@ -343,7 +420,7 @@ namespace BattleShipConsoleUI
 
                                 Console.Clear();
                                 Console.WriteLine("Current Player: {0}", playerNo + 1);
-                                BSConsoleUI.DrawBoard(false,_brain.GetUserBoard());
+                                BSConsoleUI.DrawBoard(false,brain.GetUserBoard());
                                 if (i != 0) { 
                                     Console.ForegroundColor = ConsoleColor.Red;
                                     Console.WriteLine("Please input the correct coordinates!");
@@ -355,12 +432,26 @@ namespace BattleShipConsoleUI
                                     conf.ShipConfigs[shipCount].Quantity);
                                 Console.WriteLine("Input X");
                                 var x = Console.ReadLine()?.Trim();
-                                int.TryParse(x, out var xConverted);
+                                bool tryParse = int.TryParse(x, out var xConverted);
                                 Console.WriteLine("Input Y");
                                 var y = Console.ReadLine()?.Trim();
                                 int.TryParse(y, out var yConverted);
 
-                                xy[0] = xConverted;
+                                if (tryParse)
+                                {
+                                    xy[0] = xConverted;
+                                }
+                                else
+                                {
+                                    for (int loop = 0; loop < conf.BoardSizeX; loop++)
+                                    {
+                                        if (x?.ToUpper() == letters[loop].ToString().ToUpper())
+                                        {
+                                            xy[0] = loop;
+                                            break;
+                                        }
+                                    } 
+                                }
                                 xy[1] = yConverted;
 
                                 for (int sizeX = 0; sizeX < conf.ShipConfigs[shipCount].ShipSizeX; sizeX++)
@@ -374,15 +465,15 @@ namespace BattleShipConsoleUI
                                     }
                                 }
 
-                                done = _brain.CheckCondition(list, conf);
+                                done = brain.CheckCondition(list, conf);
                                 i++;
                             } while (!done); 
                             
-                            _brain.PlaceShip(conf.ShipConfigs[shipCount].Name, list);
+                            brain.PlaceShip(conf.ShipConfigs[shipCount].Name, list);
 
                             Console.Clear(); // Clears the board again and previews the ship.
                             Console.WriteLine("Current Player: {0}", playerNo + 1);
-                            BSConsoleUI.DrawBoard(false,_brain.GetUserBoard());
+                            BSConsoleUI.DrawBoard(false,brain.GetUserBoard());
                             Console.WriteLine("Is this location suitable for you? (Y/n)");
                             var yesNo = Console.ReadKey(true);
                             if (yesNo.Key.ToString().ToLower() != "n")
@@ -391,7 +482,7 @@ namespace BattleShipConsoleUI
                             }
                             else
                             {
-                                _brain.RemoveShip(conf.ShipConfigs[shipCount].Name, list);
+                                brain.RemoveShip(conf.ShipConfigs[shipCount].Name, list);
                             }
                             
                         } while (!placedShip);
@@ -399,89 +490,9 @@ namespace BattleShipConsoleUI
                 }
             }
             
-            _brain._currentPlayerNo = 0;
-            return _brain;
+            brain.CurrentPlayerNo = 0;
+            return brain;
         }
         
-        
-        // Random ship placement
-        public static BsBrain RandomShipPlacement(GameConfig config)
-        {
-            BsBrain _brain = new BsBrain(config);
-            bool brokenLoop = false;
-            do
-            {
-                brokenLoop = false;
-                _brain = new BsBrain(config);
-                for (int playerNo = 0; playerNo < 2; playerNo++)
-                {
-                    _brain._currentPlayerNo = playerNo;
-                    for (int shipCount = 0; shipCount < config.ShipConfigs.Count; shipCount++)
-                    {
-                        for (int shipQuantity = 0; shipQuantity < config.ShipConfigs[shipCount].Quantity; shipQuantity++)
-                        {
-                            var placedShip = false;
-                            var done = false;
-                            var list = new List<Coordinate>();
-                            int checkForPossibility = 0;
-
-                            do
-                            {
-                                list = new List<Coordinate>();
-                                int[] xy = new int[2];
-
-                                xy[0] = _brain._rnd.Next(0, config.BoardSizeX-config.ShipConfigs[shipCount].ShipSizeX);
-                                xy[1] = _brain._rnd.Next(0, config.BoardSizeY-config.ShipConfigs[shipCount].ShipSizeY+1);
-
-                                for (int sizeX = 0; sizeX < config.ShipConfigs[shipCount].ShipSizeX; sizeX++)
-                                {
-                                    for (int sizeY = 0;
-                                        sizeY < config.ShipConfigs[shipCount].ShipSizeY;
-                                        sizeY++)
-                                    {
-                                        list.Add(new Coordinate(
-                                            xy[1] + sizeY,
-                                            xy[0] + sizeX)
-                                        );
-                                    }
-                                }
-                                done = _brain.CheckCondition(list, config);
-                                
-                                if (!done)
-                                {
-                                    if (checkForPossibility > 10)
-                                    {
-                                        brokenLoop = true;
-                                        break;
-                                    }
-
-                                    checkForPossibility++;
-                                }
-                            } while (!done);
-
-                            if (!brokenLoop)
-                            {
-                                _brain.PlaceShip(config.ShipConfigs[shipCount].Name, list);
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        if (brokenLoop)
-                        {
-                            break;
-                        }
-                    }
-                    if (brokenLoop)
-                    {
-                        break;
-                    }
-                }
-            } while (brokenLoop);
-            
-            _brain._currentPlayerNo = 0;
-            return _brain;
-        }
     }
 }

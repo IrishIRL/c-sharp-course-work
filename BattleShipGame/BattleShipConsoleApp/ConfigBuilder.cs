@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using BattleShipBrain;
 
 namespace BattleShipConsoleApp
@@ -10,28 +9,68 @@ namespace BattleShipConsoleApp
     {
         public static string ConfigAssembler()
         {
-            var conf = new GameConfig();
+            bool configTested;
+            string confJsonStr = "";
+            // BUILDER START
+            do
+            {
+                var conf = new GameConfig();
+                int[] boardXyGrabbed = BoardDimensionQuestions();
+                int touchRule = TouchRuleQuestion();
+                ShipConfigQuestions(conf);
+                Console.WriteLine("Automatic configuration testing system will now test your configuration.");
+                configTested = BsBrain.ShipTester(conf);
+                if (configTested)
+                {
+                    confJsonStr = BsBrain.JsonBuilder(boardXyGrabbed, touchRule, conf); 
+                    Console.WriteLine("Config tested. You can now proceed with saving the configuration.");
+                    Console.ReadLine();
+                }
+                else
+                {
+                    Console.WriteLine("We were unable to test the configuration. Please try to regenerate another configuration.");
+                    Console.WriteLine("If you do not want to generate another configuration, you can exit it by typing \"E\". Otherwise, click any other button.");
+                    var exitButton = Console.ReadKey(true);
+                    if (exitButton.Key.ToString().ToUpper() == "E")
+                    {
+                        return "Exited configuration builder!";
+                    }
+                }
+            } while (!configTested);
+            // BUILDER END
             
-            int[] boardXyGrabbed = BoardDimensionQuestions();
-            int touchRule = TouchRuleQuestion();
-            ShipConfigQuestions(conf);
+            bool success = true;
+            do
+            {
+                Console.WriteLine(success
+                    ? "Please input name of new config"
+                    : "Config with this name already exists, please choose another name!");
+                var configName = Console.ReadLine()!.Trim(); 
+                configName += ".json"; 
+                string fullNewConfig = GlobalVariables.ReturnConfigFolderLocation() + Path.DirectorySeparatorChar + configName; 
+                //string[] files = Directory.GetFiles(GlobalVariables.ReturnConfigFolderLocation());
             
-            string confJsonStr = BsBrain.JsonBuilder(boardXyGrabbed, touchRule, conf); // shouldn't be var _brain = new BsBrain() and _brain.JsonBuilder ???
-            Console.WriteLine("Please input name of new config");
-            var configName = Console.ReadLine()!.Trim();
-            configName += ".json";
-            string fullNewConfig = GlobalVariables.ReturnConfigFolderLocation() + Path.DirectorySeparatorChar + configName;
-            System.IO.File.WriteAllText(fullNewConfig, confJsonStr);
-            
+                if (!File.Exists(fullNewConfig))
+                {
+                    File.WriteAllText(fullNewConfig, confJsonStr);
+                    success = true;
+                }
+                else
+                {
+                    success = false;
+                }
+            } while (!success);
+
             return "New config saved!";
         }
 
         private static int[] BoardDimensionQuestions()
         {
-            bool checker = true;
-            int[] standardBoard = {10, 10};
+            bool checker;
+            int[] board = {10, 10};
             do
             {
+                checker = true;
                 Console.WriteLine("Input X Board Dimension");
                 var x = Console.ReadLine()?.Trim();
                 int.TryParse(x, out var xConverted);
@@ -39,12 +78,11 @@ namespace BattleShipConsoleApp
                 var y = Console.ReadLine()?.Trim();
                 int.TryParse(y, out var yConverted);
 
-                if (xConverted is > 4 and < 26 && yConverted is > 4 and < 26)
+                if (xConverted is > 4 and < 27 && yConverted is > 4 and < 27)
                 {
-                    int[] xy = new int[2];
-                    xy[0] = xConverted;
-                    xy[1] = yConverted;
-                    return xy;   
+                    board[0] = xConverted;
+                    board[1] = yConverted;
+                    checker = false;
                 }
                 else
                 {
@@ -52,12 +90,12 @@ namespace BattleShipConsoleApp
                     Console.WriteLine("Please make your board at least 4 and at most 26 in sizes.");
                 }
             } while (checker);
-            return standardBoard;
+            return board;
         }
         
         private static int TouchRuleQuestion()
         {
-            bool checker = true;
+            bool checker;
             do
             {
                 Console.WriteLine("Choose touch rule:\n1. No Touch\n2. Corner Touch\n3. Side Touch");
@@ -70,6 +108,7 @@ namespace BattleShipConsoleApp
                 }
                 else
                 {
+                    checker = true;
                     Console.WriteLine("Please input the correct number!");
                 }
             } while (checker);
@@ -81,7 +120,7 @@ namespace BattleShipConsoleApp
         {
             int shipCounter = 5;
             conf.ShipConfigs.Clear();
-            
+
             Console.WriteLine("How many different ships do you want to build (default 5):");
             var shipCount = Console.ReadLine()?.Trim();
             int.TryParse(shipCount, out var shipCountConverted);
@@ -90,7 +129,7 @@ namespace BattleShipConsoleApp
             {
                 shipCounter = shipCountConverted;
             }
-            
+
             for (int i = 0; i < shipCounter; i++)
             {
                 bool questionChecker = true;

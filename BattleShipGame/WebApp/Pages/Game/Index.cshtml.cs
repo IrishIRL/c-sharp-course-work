@@ -2,7 +2,6 @@
 using System.Text.Json;
 using BattleShipBrain;
 using BattleShipConsoleApp;
-using Domain;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using GameConfig = BattleShipBrain.GameConfig;
 
@@ -10,11 +9,11 @@ namespace WebApp.Pages.Game
 {
     public class Index : PageModel
     {
-        public static GameConfig _conf = new GameConfig();
-        public static BsBrain _brain = new BsBrain(_conf);
+        public static GameConfig Conf = new GameConfig();
+        public static BsBrain Brain = new BsBrain(Conf);
         public Domain.GameConfig GameConfig { get; set; } = default!;
-        
-        public int GameId { get; set; } = default!;
+        public static string ConfigText = "";
+        public int GameId { get; set; }
         
         private readonly DAL.ApplicationDbContext _context;
 
@@ -52,13 +51,13 @@ namespace WebApp.Pages.Game
                 }
 
                 Console.WriteLine(gameId);
-                int errorLogging = Index._brain.RestoreBrainFromJson(loadWay, gameId, 1);
+                int errorLogging = Index.Brain.RestoreBrainFromJson(loadWay, gameId, 1);
                 Console.WriteLine(errorLogging); // just for us to know, if this is eq to 0, then everything went well. 1 means error occured.
             }
 
             if (configId != null && !zeroConfig)
             {
-                string confText = "";
+                string confText;
 
                 if (isParsableConfigNo)
                 {
@@ -70,10 +69,11 @@ namespace WebApp.Pages.Game
                     var configFile = GlobalVariables.ReturnConfigFolderLocation() + @"\" + configId;
                     confText = System.IO.File.ReadAllText(configFile);
                 }
-
+                
                 if (confText != "")
                 {
-                    _conf = JsonSerializer.Deserialize<GameConfig>(confText);
+                    ConfigText = confText;
+                    Conf = JsonSerializer.Deserialize<GameConfig>(ConfigText)!;
                     Response.Redirect("Game/SetShips?resetGame=true");
                 }
             }

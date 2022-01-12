@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using BattleShipBrain;
 
 namespace BattleShipConsoleApp
 {
@@ -65,9 +64,8 @@ namespace BattleShipConsoleApp
             
             return cutFiles;
         }
-
-
-        public static string fileNameStandardConfig =  ReturnConfigFolderLocation() + Path.DirectorySeparatorChar + "standardConfig.json";
+        
+        public static string fileNameStandardConfig =  ReturnConfigFolderLocation() + Path.DirectorySeparatorChar + "_StandardConfig.json";
         //public static string savedGameFile = BsBrain.ReturnFolderLocation() + Path.DirectorySeparatorChar + "savedGame.json";
     }
 }

@@ -1,19 +1,27 @@
 @page
-@using System.Data
 @using BattleShipBrain
-@using Microsoft.CodeAnalysis.CSharp
 @model WebApp.Pages_GameConfigs.CreateModel
 
 @{
     ViewData["Title"] = "Create - Game Configs";
 }
 
-    <h1>Create</h1>
-<h4>GameConfig</h4>
+<h1>Create Game Config</h1>
 <hr />
+@{
+    if (Model.ConfigTested && Model.Ready)
+    {
+        <h1 style="color: green">Successfully build and tested config!</h1>
+        Model.Ready = false;
+    }
+    else if (!Model.ConfigTested && Model.Ready)
+    {
+        <h1 style="color: red">No success while building and testing config! Maybe it is an impossible configuration?</h1>
+        Model.Ready = false;
+    }
+}
 <div class="row">
     <div class="col-md-4">
-        
         @{
             if (Model.FirstTime)
             {

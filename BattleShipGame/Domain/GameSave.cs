@@ -5,7 +5,7 @@ namespace Domain
 {
     public class GameSave
     {
-        [Key] public int SavedGameId { get; set; } = default!;
+        [Key] public int SavedGameId { get; set; }
         public string SavedGame { get; set; } = default!;
         public DateTime GameSaveDate { get; set; }
     }

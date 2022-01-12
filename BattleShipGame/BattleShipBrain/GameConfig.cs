@@ -5,8 +5,8 @@ namespace BattleShipBrain
 {
     public class GameConfig
     {
-        public int BoardSizeX { get; set; } = 7;
-        public int BoardSizeY { get; set; } = 7;
+        public int BoardSizeX { get; set; } = 10;
+        public int BoardSizeY { get; set; } = 10;
 
         public List<ShipConfig> ShipConfigs { get; set; } = new List<ShipConfig>()
         {
@@ -14,15 +14,15 @@ namespace BattleShipBrain
             {
                 Name = "Patrol",
                 Quantity = 1,
-                ShipSizeY = 2,
-                ShipSizeX = 2,
+                ShipSizeY = 1,
+                ShipSizeX = 1,
             },
             new ShipConfig()
             {
                 Name = "Cruiser",
                 Quantity = 1,
-                ShipSizeY = 2,
-                ShipSizeX = 1,
+                ShipSizeY = 1,
+                ShipSizeX = 2,
             },
             new ShipConfig()
             {
@@ -35,15 +35,15 @@ namespace BattleShipBrain
             {
                 Name = "Battleship",
                 Quantity = 1,
-                ShipSizeY = 4,
-                ShipSizeX = 1,
+                ShipSizeY = 1,
+                ShipSizeX = 4,
             },
             new ShipConfig()
             {
                 Name = "Carrier",
                 Quantity = 1,
                 ShipSizeY = 1,
-                ShipSizeX = 4,
+                ShipSizeX = 5,
             },
         };
 

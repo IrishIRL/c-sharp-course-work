@@ -1,12 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 using BattleShipBrain;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using DAL;
 using GameConfig = Domain.GameConfig;
 
@@ -37,14 +33,15 @@ namespace WebApp.Pages_GameConfigs
         public int ShipCount { get; set; } = 1;
         
         public bool FirstTime { get; set; } = true;
-        
+
         [BindProperty]
         public GameConfig GameConfig { get; set; } = default!;
         
-        
-        private readonly DAL.ApplicationDbContext _context;
+        public bool ConfigTested { get; set; }
+        public bool Ready { get; set; }
+        private readonly ApplicationDbContext _context;
 
-        public CreateModel(DAL.ApplicationDbContext context)
+        public CreateModel(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -64,11 +61,7 @@ namespace WebApp.Pages_GameConfigs
         }
         public void OnPostAddShip()
         {
-            Console.WriteLine(IndexModel.Conf.BoardSizeX);
-            Console.WriteLine(IndexModel.Conf.BoardSizeY);
-            Console.WriteLine(IndexModel.Conf.EShipTouchRule);
-            
-            var shipConfig = new BattleShipBrain.ShipConfig()
+            var shipConfig = new ShipConfig()
             {
                 Name = ShipName,
                 ShipSizeX = ShipSizeX,
@@ -89,14 +82,23 @@ namespace WebApp.Pages_GameConfigs
                 WriteIndented = true
             };
 
-            var confJsonStr = JsonSerializer.Serialize(IndexModel.Conf, jsonOptions);
+            ConfigTested = BsBrain.ShipTester(IndexModel.Conf);
+            if (ConfigTested)
+            {
+                Ready = true;
+                var confJsonStr = JsonSerializer.Serialize(IndexModel.Conf, jsonOptions);
 
-            GameConfig.ConfigJson = confJsonStr;
-            GameConfig.ConfigBuildDate = DateTime.Now;
+                GameConfig.ConfigJson = confJsonStr;
+                GameConfig.ConfigBuildDate = DateTime.Now;
 
-            _context.GameConfigs.Add(GameConfig);
-            _context.SaveChanges();
-            
+                _context.GameConfigs.Add(GameConfig);
+                _context.SaveChanges();   
+            }
+            else
+            {
+                Ready = true;
+            }
+
             //await _context.SaveChangesAsync();
 
             //return RedirectToPage("./Index");

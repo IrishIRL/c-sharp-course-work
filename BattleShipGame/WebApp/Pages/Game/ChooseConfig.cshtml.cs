@@ -15,8 +15,6 @@ namespace WebApp.Pages.Game
             _context = context;
         }
         public IList<Domain.GameConfig> GameConfig { get; set; } = default!;
-        //public IList<BattleShipBrain.GameConfig> GameConfigBrain { get; set; } = default!;
-        //public static BattleShipBrain.GameConfig Conf { get; set; } = new  BattleShipBrain.GameConfig();
         public string[] LocalSavedFiles { get; set; } = GlobalVariables.ReturnCutNames(0);
         
         public async Task OnGetAsync()

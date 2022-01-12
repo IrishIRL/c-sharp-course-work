@@ -10,19 +10,20 @@
         {
             <h3>It looks like you do not have a game yet.</h3>
             <h3>Would you like to start a new game or continue an old one?</h3><br/>
-            <button class="btn btn-primary" onclick="location.href='Game/ChooseConfig'">Start a new one</button>
-            <button class="btn btn-primary" onclick="location.href='Game/LoadGame'">Continue</button>
+            <button class="btn btn-primary" onclick="location.href='../Game/ChooseConfig'">Start a new one</button>
+            <button class="btn btn-primary" onclick="location.href='../Game/LoadGame'">Continue</button>
         }
     }
     
     @{
         if (@Model.GameId != 0)
         {
-            <h3>The game is now loaded. You can start it now if you want:</h3><br/>
-            <button class="btn btn-primary" onclick="location.href='Game/Play'">Play a game</button>
-            <br/><br/><br/>
+            <h3>The game is now loaded. You can start it now:</h3><br/>
+            <button class="btn btn-primary" onclick="location.href='../Game/Play'">Play a game</button>
+            <!-- Started thinking that this button is useless here.-->
+            <!--<br/><br/><br/> 
             <h3>If you want to reset the game, click here:</h3><br/>
-            <button class="btn btn-primary" onclick="location.href='Game/SetShips?resetGame=false'">Add ships</button>
+            <button class="btn btn-primary" onclick="location.href='../Game/SetShips?resetGame=true'">Start a new game</button>-->
         }
     }
 </div>

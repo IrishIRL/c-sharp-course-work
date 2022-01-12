@@ -2,20 +2,23 @@
 @model WebApp.Pages.Game.SetShips
 @{
     ViewData["Title"] = "Game - Set Ships";
-    int currentPlayerNo = @Index._brain._currentPlayerNo + 1;
+    int currentPlayerNo = @Index.Brain.CurrentPlayerNo + 1;
+    bool moreShipToPlace = false;
 }
 
 <h1>Current player: @currentPlayerNo</h1><br/><br/>
-<div class="row text-center">
-    @{
-        @if (@Model.WrongLocation)
-        {
-            Console.WriteLine("hi");
-            <h3 class="text-center">Please input the correct location</h3>
-        }
-        
-        if (@Model.ShipIdSelect == false)
-        {
+@if (@Model.WrongLocation)
+{
+    <h4 class="text-center" style="color: red">Please choose the correct location</h4>
+}
+@if (@Model.WrongShip)
+{
+    <h4 class="text-center" style="color: red">Please choose the correct ship</h4>
+}
+@{
+    if (@Model.ShipIdSelect == false)
+    {
+        <div class="row text-center">
             <div class="col">
                 <h2 class="text-center">Your current board</h2>
 
@@ -23,7 +26,7 @@
                     <thead class="thead-dark">
                     <tr>
                         <th style="height: 50px; width: 50px;">#</th>
-                        @for (int x = 0; x < @Index._brain.GetUserBoard().GetLength(0); x++)
+                        @for (int x = 0; x < @Index.Brain.GetUserBoard().GetLength(0); x++)
                         {
                             <th>
                                 @Model.Letters[x % 26]
@@ -32,30 +35,16 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @for (int y = 0; y < @Index._brain.GetUserBoard().GetLength(1); y++)
+                    @for (int y = 0; y < @Index.Brain.GetUserBoard().GetLength(1); y++)
                     {
                         <tr style="height: 50px; width: 50px;">
                             <th class="bg-dark text-light" style="border: 1px solid #454d55" scope="row">@y</th>
-                            @for (int x = 0; x < @Index._brain.GetUserBoard().GetLength(0); x++)
+                            @for (int x = 0; x < @Index.Brain.GetUserBoard().GetLength(0); x++)
                             {
                                 <td style="height: 50px; width: 50px;">
-                                    @if (@Index._brain.GetUserBoard()[x, y].IsShip)
+                                    @if (@Index.Brain.GetUserBoard()[x, y].IsShip)
                                     {
-                                        if (@Index._brain.GetUserBoard()[x, y].IsBomb)
-                                        {
-                                            <text>X</text>
-                                        }
-                                        else
-                                        {
-                                            <text>8</text>
-                                        }
-                                    }
-                                    else if (@Index._brain.GetUserBoard()[x, y].IsBomb)
-                                    {
-                                        if (!@Index._brain.GetUserBoard()[x, y].IsShip)
-                                        {
-                                            <text>-</text>
-                                        }
+                                       <text>8</text>
                                     }
                                     else
                                     {
@@ -68,36 +57,68 @@
                     </tbody>
                 </table>
             </div>
-            
+
             <div class="col">
-                <h3>Please choose ship to place:</h3>
-                <br/>
-                <form method="get" class="text-center">
-                    <div class="col-auto my-1">
-                        IDs to pick from:
-                        <select name="shipName">
-                            @foreach (var item in @Index._conf.ShipConfigs)
+                <h2>Available configs:</h2>
+                <table class="table-bordered div-center">
+                    <thead>
+                    <tr style="height: 50px; width: 50px;">
+                        <th>Ship Name</th>
+                        <th>Left Quantity</th>
+                        <th>Ship size X</th>
+                        <th>Ship size Y</th>
+                        <th>Settings</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for (int i = 0; i < Index.Conf.ShipConfigs.Count; i++)
+                    {
+                        <tr style="height: 70px; width: 70px;">
+                            <td>@Index.Conf.ShipConfigs[i].Name</td>
+                            <td>@Index.Conf.ShipConfigs[i].Quantity</td>
+                            <td>@Index.Conf.ShipConfigs[i].ShipSizeX</td>
+                            <td>@Index.Conf.ShipConfigs[i].ShipSizeY</td>
+                            @if (Index.Conf.ShipConfigs[i].Quantity > 0)
                             {
-                                <option value="@item.Name">@item.Name</option>
+                                moreShipToPlace = true;
+                                <td><a href="?shipName=@Index.Conf.ShipConfigs[i].Name">Add ship</a></td>
                             }
-                        </select>
-                        <br/><br/>
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </div>
-                </form>
+                            @if (Index.Conf.ShipConfigs[i].Quantity <= 0)
+                            {
+                                <td><a color="grey">All placed</a></td>
+                            }
+                        </tr>
+                    }
+                    </tbody>
+                </table>
             </div>
-        }
-        else
+        </div>
+        <button class="btn btn-primary" onclick="location.href='?randomShipPlacement=true'">Random Ship Placement</button>
+        @if (!moreShipToPlace)
         {
-            int counter = 1;
-            
+            <br/>
+            <br/>
+            if (currentPlayerNo == 1)
+            {
+                <button class="btn btn-primary" onclick="location.href='?playerChange=true'">Change Player</button>
+            }
+            if (currentPlayerNo == 2)
+            {
+                <button class="btn btn-primary" onclick="location.href='?ready=true'">Start Game</button>   
+            }
+        }
+    }
+    else
+    {
+        int counter = 1;
+        <div class="row text-center">
             <div class="col">
                 <h2>Please choose place:</h2>
                 <table class="table table-bordered">
                     <thead class="thead-dark">
-                    <tr >
+                    <tr style="height: 50px; width: 50px;">
                         <th scope="col">#</th>
-                        @for (int x = 0; x < @Index._brain.GetUserBoard().GetLength(0); x++)
+                        @for (int x = 0; x < @Index.Brain.GetUserBoard().GetLength(0); x++)
                         {
                             <th scope="col">
                                 @Model.Letters[x % 26]
@@ -106,14 +127,14 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @for (int y = 0; y < @Index._brain.GetUserBoard().GetLength(1); y++)
+                    @for (int y = 0; y < @Index.Brain.GetUserBoard().GetLength(1); y++)
                     {
                         <tr style="height: 50px; width: 50px;">
                             <th class="bg-dark text-light" style="border: 1px solid #454d55" scope="row">@y</th>
-                            @for (int x = 0; x < Index._brain.GetUserBoard().GetLength(0); x++)
+                            @for (int x = 0; x < Index.Brain.GetUserBoard().GetLength(0); x++)
                             {
-                                <td style="height: 50px; width: 50px; cursor: pointer"  onclick="window.location.href = window.location.href + '&cellId=@counter'">
-                                    @if (@Index._brain.GetUserBoard()[x, y].IsShip)
+                                <td style="height: 50px; width: 50px; cursor: pointer" onclick="window.location.href += '&cellId=@counter'" onmouseover="this.style.backgroundColor='red'" onmouseout="this.style.backgroundColor='white'">
+                                    @if (@Index.Brain.GetUserBoard()[x, y].IsShip)
                                     {
                                         <text>8</text>
                                     }
@@ -129,34 +150,30 @@
                     </tbody>
                 </table>
             </div>
-        }
+            <div class="col">
+                <h2>Available configs:</h2>
+                <table class="table-bordered div-center">
+                    <thead>
+                    <tr style="height: 70px; width: 70px;">
+                        <th>Ship Name</th>
+                        <th>Left Quantity</th>
+                        <th>Ship size X</th>
+                        <th>Ship size Y</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for (int i = 0; i < Index.Conf.ShipConfigs.Count; i++)
+                    {
+                        <tr style="height: 50px; width: 50px;">
+                            <td>@Index.Conf.ShipConfigs[i].Name</td>
+                            <td>@Index.Conf.ShipConfigs[i].Quantity</td>
+                            <td>@Index.Conf.ShipConfigs[i].ShipSizeX</td>
+                            <td>@Index.Conf.ShipConfigs[i].ShipSizeY</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     }
-    
-    <div class="col">
-        <h2>Available configs:</h2>
-        <table class="table-bordered div-center">
-            <thead>
-            <tr>
-                <th>Ship Name</th>
-                <th>Ship Quantity</th>
-                <th>Ship size X</th>
-                <th>Ship size Y</th>
-            </tr>
-            </thead>
-            <tbody>
-            @for (int i = 0; i < Index._conf.ShipConfigs.Count; i++)
-            {
-                <tr style="height: 30px;">
-                    <td>@Index._conf.ShipConfigs[i].Name</td>
-                    <td>@Index._conf.ShipConfigs[i].Quantity</td>
-                    <td>@Index._conf.ShipConfigs[i].ShipSizeX</td>
-                    <td>@Index._conf.ShipConfigs[i].ShipSizeY</td>
-                </tr>
-            }
-            </tbody>
-        </table>
-    </div>
-</div>
-<br/><br/>
-<button class="btn btn-primary" onclick="location.href='?playerChange=true'">Change Player</button>
-<button class="btn btn-primary" onclick="location.href='?ready=true'">Click When Ready</button>
+}

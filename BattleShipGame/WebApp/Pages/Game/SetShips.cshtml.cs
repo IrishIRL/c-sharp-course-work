@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BattleShipBrain;
-using BattleShipConsoleApp;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Text.Json;
 
 namespace WebApp.Pages.Game
 {
     public class SetShips : PageModel
     {
-        public bool ShipIdSelect { get; set; } = false;
+        public bool ShipIdSelect { get; set; }
         //public bool shipPlaceSelect { get; set; } = false;
         public bool WrongLocation { get; set; }
+        public bool WrongShip { get; set; }
         public char[] Letters { get; set; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
         
         // resetGame is used to reset BsBrain in case we start a new game.
@@ -19,18 +19,38 @@ namespace WebApp.Pages.Game
         // cellId is used to place ships.
         // shipName is used to determine which ship we are placing.
         // ready is used to determine when we can start the game.
-        public void OnGet(bool resetGame, bool playerChange, int cellId, string shipName, bool ready)
+        // wrongLocation is used to determine if the user placed the ship on the impossible location.
+        public void OnGet(bool resetGame, bool playerChange, int cellId, string shipName, bool ready, bool wrongLocation, bool wrongShip, bool randomShipPlacement)
         {
+            if (randomShipPlacement)
+            {
+                Index.Brain = Index.Brain.RandomShipPlacement(Index.Conf);
+                // When we start the game, we also make a save of it. Not sure why so, but let it be here.
+                Index.Brain.GetBrainJson(2, ""); // Decision 2 -> Save to database. We do not need name, when saving to database (since no name is saved), so it is left blank.
+                Response.Redirect("../Game/Play");
+            }
+            
             if (ready)
             {
-                Index._brain.GetBrainJson(2, ""); // Decision 2 -> Save to database. We do not need name, when saving to database (since no name is saved), so it is left blank.
-                string url = "../Game/Play";
-                Response.Redirect(url);
+                Index.Brain.CurrentPlayerNo = 0;
+                // When we start the game, we also make a save of it. Not sure why so, but let it be here.
+                Index.Brain.GetBrainJson(2, ""); // Decision 2 -> Save to database. We do not need name, when saving to database (since no name is saved), so it is left blank.
+                Response.Redirect("../Game/Play");
             }
             
             if (resetGame)
             {
-                Index._brain = new BsBrain(Index._conf);
+                Index.Brain = new BsBrain(Index.Conf);
+            }
+            
+            if (wrongLocation)
+            {
+                WrongLocation = true;
+            }
+
+            if (wrongShip)
+            {
+                WrongShip = true;
             }
 
             var list = new List<Coordinate>();
@@ -49,24 +69,26 @@ namespace WebApp.Pages.Game
                     int counter = 1;
                     
 
-                    for (int id = 0; id < Index._conf.ShipConfigs.Count; id++)
+                    for (int id = 0; id < Index.Conf.ShipConfigs.Count; id++)
                     {
-                        if (Index._conf.ShipConfigs[id].Name == shipName)
+                        if (Index.Conf.ShipConfigs[id].Name == shipName)
                         {
-                            shipId = id;
+                           shipId = id;
                         }
                         else
                         {
-                            if (id == Index._conf.ShipConfigs.Count - 1)
+                            // This "if" statement works only on the last loop, if it still has the wrong name.
+                            // (checks amount of ships and how many loops were already done).
+                            if (id == Index.Conf.ShipConfigs.Count - 1)
                             {
                                 Response.Redirect("../Game/SetShips");
                             }
                         }
                     }
                     
-                    for (int y = 0; y < Index._brain.GetUserBoard().GetLength(1); y++)
+                    for (int y = 0; y < Index.Brain.GetUserBoard().GetLength(1); y++)
                     {
-                        for (int x = 0; x < Index._brain.GetUserBoard().GetLength(0); x++)
+                        for (int x = 0; x < Index.Brain.GetUserBoard().GetLength(0); x++)
                         {
                             if (counter == cellId)
                             {
@@ -76,35 +98,43 @@ namespace WebApp.Pages.Game
                             counter++;
                         }
                     }
-                    
-                    for (int sizeX = 0; sizeX < Index._conf.ShipConfigs[shipId].ShipSizeX; sizeX++)
+
+                    if (Index.Conf.ShipConfigs[shipId].Quantity > 0)
                     {
-                        for (int sizeY = 0; sizeY < Index._conf.ShipConfigs[shipId].ShipSizeY; sizeY++)
+                        for (int sizeX = 0; sizeX < Index.Conf.ShipConfigs[shipId].ShipSizeX; sizeX++)
                         {
-                            list.Add(new Coordinate(
-                                xy[1] + sizeY,
-                                xy[0] + sizeX)
-                            );
+                            for (int sizeY = 0; sizeY < Index.Conf.ShipConfigs[shipId].ShipSizeY; sizeY++)
+                            {
+                                list.Add(new Coordinate(
+                                    xy[1] + sizeY,
+                                    xy[0] + sizeX)
+                                );
+                            }
                         }
-                    }
 
-                    bool check = Index._brain.CheckCondition(list, Index._conf);
+                        bool check = Index.Brain.CheckCondition(list, Index.Conf);
 
-                    if (check)
-                    {
-                        Index._brain.PlaceShip(shipName, list);
+                        if (check)
+                        {
+                            Index.Brain.PlaceShip(shipName, list);
+                            Index.Conf.ShipConfigs[shipId].Quantity -= 1;
+                            Response.Redirect("../Game/SetShips");
+                        }
+                        else
+                        {
+                            Response.Redirect("../Game/SetShips?wrongLocation=true");
+                        }
                     }
                     else
                     {
-                        WrongLocation = true;
+                        Response.Redirect("../Game/SetShips?wrongShip=true");
                     }
-                    Response.Redirect("../Game/SetShips");
                 }
             }
-
             if (playerChange)
             {
-                Index._brain._currentPlayerNo = Index._brain._currentPlayerNo == 0 ? 1 : 0;
+                Index.Conf = JsonSerializer.Deserialize<GameConfig>(Index.ConfigText)!;
+                Index.Brain.CurrentPlayerNo = Index.Brain.CurrentPlayerNo == 0 ? 1 : 0;
                 Response.Redirect("../Game/SetShips");
             }
         }

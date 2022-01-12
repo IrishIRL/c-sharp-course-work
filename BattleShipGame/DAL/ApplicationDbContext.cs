@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net.NetworkInformation;
-using Domain;
+﻿using Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL

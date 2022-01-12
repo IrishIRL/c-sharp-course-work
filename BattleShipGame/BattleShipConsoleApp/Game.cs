@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.IO;
 using System.Text.Json;
 using BattleShipBrain;
@@ -7,10 +6,6 @@ using BattleShipConsoleUI;
 
 namespace BattleShipConsoleApp
 {
-    //TODO: Main button does not work
-    //TODO: Check possibility of ship placement 
-    //TODO: Check ship amount web
-    //TODO: Letters to Numbers // Numbers to Letters
     public class Game
     {
         private GameConfig _conf = default!;
@@ -19,8 +14,9 @@ namespace BattleShipConsoleApp
         public string PlayGame()
         {
             _conf = new GameConfig();
+            //Stack GameSaveState = new Stack();
             
-            int closeCondition = 0;
+            int closeCondition;
             int loadSavedGame = LoadSavedGame();
 
             if (loadSavedGame != 0)
@@ -29,8 +25,7 @@ namespace BattleShipConsoleApp
                 _brain = new BsBrain(_conf);
                 if (RandomGame() == 1)
                 {
-                    _brain = MainUI.RandomShipPlacement(_conf);
-                    //Console.ReadLine();
+                    _brain = _brain.RandomShipPlacement(_conf);
                 }
                 else
                 {
@@ -42,18 +37,38 @@ namespace BattleShipConsoleApp
                 // In case we start game with the ready board, then we do not use config at the build stage.
                 // That means all the data there is still old. Since I use _conf.BoardSizes in other places,
                 // I decided to fix boardSizes here.
-                _conf.BoardSizeX = _brain._gameBoards[_brain._currentPlayerNo].Board.GetLength(0);
-                _conf.BoardSizeY = _brain._gameBoards[_brain._currentPlayerNo].Board.GetLength(1);
+                _conf.BoardSizeX = _brain.GameBoards[_brain.CurrentPlayerNo].Board.GetLength(0);
+                _conf.BoardSizeY = _brain.GameBoards[_brain.CurrentPlayerNo].Board.GetLength(1);
             }
             
             Console.Clear();
             do
             {
                 closeCondition = ChoosePlaceToPlantBomb();
-                _brain._currentPlayerNo = _brain.OneToZero(_brain._currentPlayerNo);
+                
+                // This part will ask if the user wants to redo their turn,
+                // but from my point of view, there is no point to undo the turn in the competitive game,
+                // so I will leave this code commented.
+                 
+                /*
+                _brain.GameSaveState(GameSaveState);
+                
+                bool popState = GameSaveStateBack();
+                if (popState)
+                {
+                    GameSaveState.Pop();
+                    var dto = JsonSerializer.Deserialize<SaveGameDto>(GameSaveState.Peek()!.ToString());
+                    var gameBoardArray = dto!.GetGameBoard();
+                    _brain._gameBoards[0] = gameBoardArray[0];
+                    _brain._gameBoards[1] = gameBoardArray[1];
+                    _brain._currentPlayerNo = dto.CurrentPlayerNo;
+                }
+                */
+
+                _brain.CurrentPlayerNo = _brain.OneToZero(_brain.CurrentPlayerNo);
             } while (closeCondition == 0);
 
-            _brain._currentPlayerNo = _brain.OneToZero(_brain._currentPlayerNo);
+            _brain.CurrentPlayerNo = _brain.OneToZero(_brain.CurrentPlayerNo);
             
             string returnString = MainUI.GameClosure(_brain, closeCondition);
             return returnString;
@@ -65,7 +80,7 @@ namespace BattleShipConsoleApp
         {
             string confFile = MainUI.LoadLocalConfigUi();
             var confText = File.ReadAllText(confFile);
-            _conf = JsonSerializer.Deserialize<GameConfig>(confText);
+            _conf = JsonSerializer.Deserialize<GameConfig>(confText)!;
         }
 
         public int RandomGame()
@@ -76,10 +91,19 @@ namespace BattleShipConsoleApp
             {
                 return 1;
             }
-
             return 0;
         }
+        public bool GameSaveStateBack()
+        {
+            Console.WriteLine("Do you want to revert a turn? (y/N)");
+            var yesNo = Console.ReadKey(true);
+            if (yesNo.Key.ToString().ToLower() == "y")
+            {
+                return true;
+            }
 
+            return false;
+        }
         // Load Saved Game
         public int LoadSavedGame()
         {
@@ -92,7 +116,7 @@ namespace BattleShipConsoleApp
             if (yesNo.Key.ToString().ToLower() == "y")
             {
                 _brain = new BsBrain(_conf);
-                returnResult = MainUI.LoadSavedGameUi(_brain); 
+                returnResult = MainUI.LoadSavedGameUi(_brain);
             }
 
             return returnResult;
@@ -101,7 +125,7 @@ namespace BattleShipConsoleApp
         // Function that asks player where to place the bomb.
         public int ChoosePlaceToPlantBomb()
         {
-            bool hitCondition = false;
+            bool hitCondition;
             do
             {
                 // Check for win conditions start
@@ -111,22 +135,22 @@ namespace BattleShipConsoleApp
                 
                 // DECLARATIONS START
                 // correctLocation is used to check if the place is not already bombed. If it is, then ask again.
-                bool correctLocation = false;
+                bool incorrectLocation = false;
                 // xyLocationConverted is used to save X and Y coordinates for the bomb in the array list.
                 int[] xyLocationConverted = new int[2];
                 // DECLARATIONS END
                 
                 Console.Clear();
                 
-                if (hitCondition)
+                /*if (hitCondition)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("You shot the ship! Choose the next place to shoot.");
                     Console.ForegroundColor = ConsoleColor.White;
-                }
+                }*/
                 
                 // VISUALIZER START //
-                Console.WriteLine("Current Player: {0}", _brain._currentPlayerNo + 1);
+                Console.WriteLine("Current Player: {0}", _brain.CurrentPlayerNo + 1);
                 Console.WriteLine("\n");
                 for (int i = 0; i < _conf.BoardSizeX*5+10; i++)
                 {
@@ -157,15 +181,16 @@ namespace BattleShipConsoleApp
                 {
                     Console.Write("="); 
                 }
-                Console.WriteLine("\nWrite e to exit the game. Write s to exit and save the game."); 
+                Console.WriteLine("\nWrite ee to exit the game. Write ss to exit and save the game."); 
                 // VISUALIZER END //
                 
                 do
                 {
-                    if(correctLocation) { Console.ForegroundColor = ConsoleColor.Red; Console.WriteLine("Please input place that you did not bomb yet!"); Console.ForegroundColor = ConsoleColor.White; }
+                    // incorrectLocation returns true if there has been bomb shot already.
+                    if(incorrectLocation) { Console.ForegroundColor = ConsoleColor.Red; Console.WriteLine("Please input place that you did not bomb yet!"); Console.ForegroundColor = ConsoleColor.White; }
                     xyLocationConverted = BombLocationXy(0);
-                    correctLocation = _brain.CheckForBomb(xyLocationConverted[0], xyLocationConverted[1]);
-                } while (correctLocation);
+                    incorrectLocation = _brain.CheckForBomb(xyLocationConverted[0], xyLocationConverted[1]);
+                } while (incorrectLocation);
 
                 for (int i = 0; i < 2; i++)
                 {
@@ -174,6 +199,25 @@ namespace BattleShipConsoleApp
                 }
 
                 hitCondition = _brain.PlaceBomb(xyLocationConverted);
+                if (hitCondition)
+                {
+                    bool isShipSunk = _brain.IsShipSunk(xyLocationConverted);
+
+                    if (isShipSunk)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine("You fully shot the ship! It is now sunk!\nClick enter to continue.");
+                        Console.ReadLine();
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine("You hit the ship! Search for nearby coordinates! Left ship size is: {0}.\nClick enter to continue.", _brain.LeftShipSize(xyLocationConverted));
+                        Console.ReadLine();
+                        Console.ForegroundColor = ConsoleColor.White;   
+                    }
+                }
             } while (hitCondition);
 
             Console.ForegroundColor = ConsoleColor.Red;
@@ -185,6 +229,7 @@ namespace BattleShipConsoleApp
         }
         public int[] BombLocationXy(int i)
         {
+            char[] letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
             int[] xy = new int[2];
             string[] location = {"x", "y"};
             int[] maxXy = {_conf.BoardSizeX, _conf.BoardSizeY};
@@ -195,20 +240,34 @@ namespace BattleShipConsoleApp
                 var x = Console.ReadLine()?.Trim();
 
                 // Since I am using int[], I have decided to transform exit and save to -1 and -2.
-                // From my point of view, there is no problem with that. Even though player may manually exit the game inputting -1 and -2, not letters 'e' or 's'.  
-                if (x?.ToLower() == "e")
+                // From my point of view, there is no problem with that. Even though player may manually exit the game inputting -1 and -2, not letters 'ee' or 'ss'.  
+                if (x?.ToLower() == "ee")
                 {
                     xy[i] = -1;
                     break;
                 }
 
-                if (x?.ToLower() == "s")
+                if (x?.ToLower() == "ss")
                 {
                     xy[i] = -2;
                     break;
                 }
 
                 var success = int.TryParse(x, out var element);
+
+                if (i == 0)
+                {
+                    for (int loop = 0; loop < maxXy[i]; loop++)
+                    {
+                        if (x?.ToUpper() == letters[loop].ToString().ToUpper())
+                        {
+                            element = loop;
+                            success = true;
+                            break;
+                        }
+                    }   
+                }
+
                 if (!success)
                 {
                     Console.WriteLine("Please input correct number!");
@@ -217,6 +276,7 @@ namespace BattleShipConsoleApp
                 else
                 {
                     xy[i] = element;
+                    
                     if (xy[i] > maxXy[i] - 1)
                     {
                         Console.WriteLine("Please input number less than {0}", maxXy[i] - 1);

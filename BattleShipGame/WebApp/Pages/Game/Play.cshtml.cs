@@ -1,29 +1,32 @@
-﻿using System.Threading.Tasks;
-using BattleShipBrain;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace WebApp.Pages.Game
 {
     public class Play : PageModel
     {
-        public char[] letters { get; set; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
-        
-        public void OnGet(int id, int cellId, int quit)
+        public char[] Letters { get; set; } = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
+        public int SizeLeft { get; set; }
+        public bool ShipHit { get; set; }
+        public bool IncorrectLocation { get; set; }
+        public bool HitCondition { get; set; }
+        public bool ChangeTurn { get; set; }
+        public void OnGet(bool changeTurn, int cellId, int quit)
         {
-            bool hitCondition = false;
-            
             // Check for quit conditions
             if (quit == 1)
             {
-                Index._brain.GetBrainJson(2, ""); // Decision 2 -> Save to database. We do not need name, when saving to database (since no name is saved), so it is left blank.
-                string url = "../";
-                Response.Redirect(url);
+                Index.Brain.GetBrainJson(2, ""); // Decision 2 -> Save to database. We do not need name, when saving to database (since no name is saved), so it is left blank.
+                Response.Redirect("../");
             }
             if (quit == 2)
             {
-                string url = "../";
-                Response.Redirect(url);
+                Response.Redirect("../");
+            }
+
+            if (changeTurn)
+            {
+                ChangeTurn = false;
+                Index.Brain.CurrentPlayerNo = Index.Brain.CurrentPlayerNo == 0 ? 1 : 0;
             }
 
             if (cellId > 0)
@@ -31,9 +34,9 @@ namespace WebApp.Pages.Game
                 int[] xy = new int[2];
                 int counter = 1;
 
-                for (int y = 0; y < Index._brain.GetUserBoard().GetLength(1); y++)
+                for (int y = 0; y < Index.Brain.GetUserBoard().GetLength(1); y++)
                 {
-                    for (int x = 0; x < Index._brain.GetUserBoard().GetLength(0); x++)
+                    for (int x = 0; x < Index.Brain.GetUserBoard().GetLength(0); x++)
                     {
                         if (counter == cellId)
                         {
@@ -45,19 +48,27 @@ namespace WebApp.Pages.Game
                     }
                 }
 
+                // Check if the location has the bomb already, so a player does not place bomb to the same place
+                IncorrectLocation = Index.Brain.CheckForBomb(xy[0], xy[1]);
+                
                 // Placing bombs
-                hitCondition = Index._brain.PlaceBomb(xy);
+                HitCondition = Index.Brain.PlaceBomb(xy);
 
                 // Check for win conditions
-                var winCondition = Index._brain.GameWinCondition();
+                var winCondition = Index.Brain.GameWinCondition();
                 if (winCondition) Response.Redirect("../win");
 
                 // Check for hit
-                if (!hitCondition)
+                if (!HitCondition && !IncorrectLocation)
                 {
                     // Change player if the bomb did not hit the target
-                    Index._brain._currentPlayerNo = Index._brain._currentPlayerNo == 0 ? 1 : 0;
-
+                    ChangeTurn = true;
+                    // Index.Brain.CurrentPlayerNo = Index.Brain.CurrentPlayerNo == 0 ? 1 : 0;
+                }
+                else if(!IncorrectLocation)
+                {
+                    SizeLeft = Index.Brain.LeftShipSize(xy);
+                    ShipHit = true;
                 }
             }
         }

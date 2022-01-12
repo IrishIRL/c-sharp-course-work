@@ -4,37 +4,104 @@
     ViewData["Title"] = "Game - Play";
 }
 @{
-    int currentPlayerNo = @Index._brain._currentPlayerNo + 1;
+    int currentPlayerNo = @Index.Brain.CurrentPlayerNo + 1;
     int counter = 1;
 }
-<h2>Player No. @currentPlayerNo turn.</h2><br/><br/>
-<div class="row">
+<h2>Player No. @currentPlayerNo turn.</h2><br/>
+@if (Model.ShipHit)
+{
+    @if (Model.SizeLeft != 0)
+    {
+        <h3 style="color:green">You hit the ship! The left size of the ship is: @Model.SizeLeft</h3><br/>
+    }
+    else
+    {
+        <h3 style="color:green">You shot the ship! You can search for another ship now!</h3><br/>
+    }
+}
+@if (Model.IncorrectLocation)
+{
+    <h3 style="color:red">You cannot place the bomb to the same place.</h3><br/>
+}
+@if (Model.ChangeTurn)
+{
+    <h3 style="color:red">You missed! Please click the button bellow to change the user.</h3>
+    <div class="row">
     <div class="col">
         <h2 class="text-center">Enemies board</h2>
         <table class="table table-bordered">
             <thead class="thead-dark">
             <tr>
                 <th scope="col">#</th>
-                @for (int x = 0; x < Index._brain.GetEnemyBoard().GetLength(0); x++)
+                @for (int x = 0; x < Index.Brain.GetEnemyBoard().GetLength(0); x++)
                 {
                     <th scope="col">
-                        @Model.letters[x % 26]
+                        @Model.Letters[x % 26]
                     </th>
                 }
             </tr>
             </thead>
             <tbody>
-            @for (int y = 0; y < Index._brain.GetEnemyBoard().GetLength(1); y++)
+            @for (int y = 0; y < Index.Brain.GetEnemyBoard().GetLength(1); y++)
             {
                 <tr style="height: 50px; width: 50px;">
-                    <th class="bg-dark text-light" style="border: 1px solid #454d55" scope="row">@y</th>
-                    @for (int x = 0; x < Index._brain.GetEnemyBoard().GetLength(0); x++)
+                    <th class="bg-dark text-light" style="border: 1px solid #454d55; height: 50px; width: 50px;" scope="row">@y</th>
+                    @for (int x = 0; x < Index.Brain.GetEnemyBoard().GetLength(0); x++)
                     {
-                        <td style="height: 50px; width: 50px; cursor: pointer" onclick="window.location.href = '/Game/Play?cellId=@counter' ">
-                            <!-- onclick="window.location.href = window.location.href + '&cellId=' -->
-                            @if (Index._brain.GetEnemyBoard()[x, y].IsBomb)
+                        <td style="height: 50px; width: 50px;">
+                            @if (Index.Brain.GetEnemyBoard()[x, y].IsBomb)
                             {
-                                if (Index._brain.GetEnemyBoard()[x, y].IsShip)
+                                if (Index.Brain.GetEnemyBoard()[x, y].IsShip)
+                                {
+                                    <text>X</text>
+                                }
+                                else
+                                {
+                                    <text>-</text>
+                                }
+                            }
+                            else
+                            {
+                                <text> </text>
+                            }
+                        </td>
+                        counter++;
+                    }
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div></div><br/>
+    <button class="btn btn-primary" onclick="location.href='?changeTurn=true'">Change turn</button><br/><br/>
+}
+else
+{
+    <div class="row">
+    <div class="col">
+        <h2 class="text-center">Enemies board</h2>
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+            <tr>
+                <th scope="col">#</th>
+                @for (int x = 0; x < Index.Brain.GetEnemyBoard().GetLength(0); x++)
+                {
+                    <th scope="col">
+                        @Model.Letters[x % 26]
+                    </th>
+                }
+            </tr>
+            </thead>
+            <tbody>
+            @for (int y = 0; y < Index.Brain.GetEnemyBoard().GetLength(1); y++)
+            {
+                <tr style="height: 50px; width: 50px;">
+                    <th class="bg-dark text-light" style="border: 1px solid #454d55; height: 50px; width: 50px;" scope="row">@y</th>
+                    @for (int x = 0; x < Index.Brain.GetEnemyBoard().GetLength(0); x++)
+                    {
+                        <td style="height: 50px; width: 50px; cursor: pointer" onclick="window.location.href = '/Game/Play?cellId=@counter'" onmouseover="this.style.backgroundColor='red'" onmouseout="this.style.backgroundColor='white'">
+                            @if (Index.Brain.GetEnemyBoard()[x, y].IsBomb)
+                            {
+                                if (Index.Brain.GetEnemyBoard()[x, y].IsShip)
                                 {
                                     <text>X</text>
                                 }
@@ -62,25 +129,25 @@
             <thead class="thead-dark">
             <tr>
                 <th scope="col">#</th>
-                @for (int x = 0; x < Index._brain.GetUserBoard().GetLength(0); x++)
+                @for (int x = 0; x < Index.Brain.GetUserBoard().GetLength(0); x++)
                 {
                     <th scope="col">
-                        @Model.letters[x % 26]
+                        @Model.Letters[x % 26]
                     </th>
                 }
             </tr>
             </thead>
             <tbody>
-            @for (int y = 0; y < Index._brain.GetUserBoard().GetLength(1); y++)
+            @for (int y = 0; y < Index.Brain.GetUserBoard().GetLength(1); y++)
             {
                 <tr style="height: 50px; width: 50px;">
-                    <th class="bg-dark text-light" style="border: 1px solid #454d55" scope="row">@y</th>
-                    @for (int x = 0; x < Index._brain.GetUserBoard().GetLength(0); x++)
+                    <th class="bg-dark text-light" style="border: 1px solid #454d55; height: 50px; width: 50px;" scope="row">@y</th>
+                    @for (int x = 0; x < Index.Brain.GetUserBoard().GetLength(0); x++)
                     {
                         <td style="height: 50px; width: 50px;">
-                            @if (Index._brain.GetUserBoard()[x, y].IsShip)
+                            @if (Index.Brain.GetUserBoard()[x, y].IsShip)
                             {
-                                if (Index._brain.GetUserBoard()[x, y].IsBomb)
+                                if (Index.Brain.GetUserBoard()[x, y].IsBomb)
                                 {
                                     <text>X</text>
                                 }
@@ -89,9 +156,9 @@
                                     <text>8</text>
                                 }
                             }
-                            else if (Index._brain.GetUserBoard()[x, y].IsBomb)
+                            else if (Index.Brain.GetUserBoard()[x, y].IsBomb)
                             {
-                                if (!Index._brain.GetUserBoard()[x, y].IsShip)
+                                if (!Index.Brain.GetUserBoard()[x, y].IsShip)
                                 {
                                     <text>-</text>
                                 }
@@ -108,6 +175,7 @@
         </table>
     </div>
 </div>
-<br/><br/>
+<br/>
+}
 <button class="btn btn-primary" onclick="location.href='?quit=1'">Save and Exit</button> 
 <button class="btn btn-primary" onclick="location.href='?quit=2'">Exit without Save</button> 

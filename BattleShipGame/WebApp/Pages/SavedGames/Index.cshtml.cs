@@ -1,11 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using BattleShipBrain;
-using BattleShipConsoleApp;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using DAL;
@@ -17,11 +12,11 @@ namespace WebApp.Pages_SavedGames
     {
         public static BattleShipBrain.GameConfig _conf = new BattleShipBrain.GameConfig();
         public static BattleShipBrain.BsBrain _brain = new BattleShipBrain.BsBrain(_conf);
-        public int SuccessfullySavedGame { get; set; } = 0;
+        public int SuccessfullySavedGame { get; set; }
 
-        private readonly DAL.ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public IndexModel(DAL.ApplicationDbContext context)
+        public IndexModel(ApplicationDbContext context)
         {
             _context = context;
         }

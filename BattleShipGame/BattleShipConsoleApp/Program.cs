@@ -42,7 +42,9 @@ namespace BattleShipConsoleApp
             var menu = new Menu("Config Menu - Local", EMenuLevel.SecondOrMore);
             menu.AddMenuItems(new List<MenuItem>()
             {
-                new("C", "Make CUSTOM config", ConfigBuilder.ConfigAssembler),
+                new("B", "Build custom config", ConfigBuilder.ConfigAssembler),
+                new("D", "Display locally saved configs", ConfigLocalOptions.DisplayLocallySavedConfigs),
+                new("S", "Rebuild standard config", ConfigLocalOptions.SaveStandardConfig),
                 new("RR", "Remove configs from computer", ConfigLocalOptions.RemoveConfig)
             });
             return menu.Run();

@@ -1,4 +1,4 @@
-# C# Course work.
+# C# - Course work
 
 ## First Part: Console Calculator
 ~~~~

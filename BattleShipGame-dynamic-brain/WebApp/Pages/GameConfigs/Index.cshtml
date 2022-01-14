@@ -1,0 +1,49 @@
+@page
+@model WebApp.Pages_GameConfigs.IndexModel
+
+@{
+    ViewData["Title"] = "Index - Game Configs";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.GameConfig[0].ConfigId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.GameConfig[0].ConfigName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.GameConfig[0].ConfigBuildDate)
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.GameConfig) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ConfigId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ConfigName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ConfigBuildDate)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.ConfigId">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.ConfigId">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.ConfigId">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+<a asp-page="../Settings">Back to Settings</a>

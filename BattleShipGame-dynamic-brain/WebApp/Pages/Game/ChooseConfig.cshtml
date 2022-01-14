@@ -1,0 +1,83 @@
+﻿@page
+@model WebApp.Pages.Game.ChooseConfig
+
+@{
+    ViewData["Title"] = "ChooseConfig";
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <title></title>
+</head>
+<body>
+<div class="row text-center">
+    <h1>Please choose one of the following configs</h1>
+    <hr/>
+</div>
+<br/>
+<br/>
+<div class="row text-center">
+    <div class="col">
+        <h3>Database saved configs:</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.GameConfig[0].ConfigName)
+                </th>
+                <th>
+                    <a>Choose</a>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.GameConfig)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ConfigName)
+                    </td>
+                    <td>
+                        <a href="../Game?configId=@item.ConfigId">Choose</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <br/>
+    </div>
+
+    <div class="col">
+        <h3>Locally saved configs:</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.LocalSavedFiles)
+                </th>
+                <th>
+                    Choose
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.LocalSavedFiles)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item)
+                    </td>
+                    <td>
+                        <a href="../Game?configId=@item">Choose</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+ <a href="../GameConfigs/Create">You can also make a new config if you want!</a>
+</body>
+</html>

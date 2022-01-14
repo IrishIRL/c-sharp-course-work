@@ -1,0 +1,61 @@
+﻿@page
+@model WebApp.Pages.Game.LoadGame
+@{
+    ViewData["Title"] = "Game - Load Game";
+}
+<div class="row text-center">
+    <div class="col">
+        <h3>Here you can see all your saved database saved games:</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.GameSave[0].GameSaveDate)
+                </th>
+                <th>
+                    <a>Choose</a>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.GameSave) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.GameSaveDate)
+                    </td>
+                    <td>
+                        <a href="../Game?gameId=@item.SavedGameId">Choose</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <div class="col">
+        <h3>Here you can see all your saved database saved games:</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.LocalSavedFiles)
+                </th>
+                <th>
+                    <a>Choose</a>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.LocalSavedFiles) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item)
+                    </td>
+                    <td>
+                        <a href="../Game?gameId=@item">Choose</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

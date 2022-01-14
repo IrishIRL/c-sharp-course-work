@@ -1,13 +1,15 @@
-# ics0010-2021f
-C# Course work.
+# C# Course work.
 
-First Part: Console Calculator
+## First Part: Console Calculator
+~~~~
 Support following operations:
 Binary: +, -, /, *, x power y
 Unary: negate, sqrt, square, abs value
 Display current calculator value in current menu. 
+~~~~
 
-Second Part:
+## Second Part: Battleship 
+~~~~
 Battleship initial description
 
 Build an console and web game - "Battleship".
@@ -63,3 +65,4 @@ UI for visualizing and controlling game
 Save/load game state
 
 Keep your project structured and reuse business logic later again.
+~~~~

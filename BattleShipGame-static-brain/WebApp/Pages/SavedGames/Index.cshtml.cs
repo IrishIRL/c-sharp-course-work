@@ -41,7 +41,7 @@ namespace WebApp.Pages_SavedGames
                     string nameOfGame = "DBSave_" + DateTime.Now.ToString("MM_dd_yyyy_HH_mm_ss") + "_id_" + gameId;
                     int success = _brain.RestoreBrainFromJson(2, gameId.ToString(), 1);
                     Console.WriteLine("success: " + success + ". If 0 then success, if 1 then no success");
-                    _brain.GetBrainJson(1, nameOfGame);
+                    _brain.GetBrainJson(1, nameOfGame, false);
                     Console.WriteLine("Saved game " + gameId + " with name: " + nameOfGame);
 
                     Response.Redirect("SavedGames?saveStatus=" + success+1);

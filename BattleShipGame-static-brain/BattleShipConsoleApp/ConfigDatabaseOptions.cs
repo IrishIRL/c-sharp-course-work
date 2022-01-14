@@ -91,7 +91,7 @@ namespace BattleShipConsoleApp
                             break;
                         }
                     }
-                } while (foundEntry);
+                } while (!foundEntry);
             }
 
             do

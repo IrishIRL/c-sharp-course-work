@@ -16,7 +16,9 @@ namespace WebApp.Pages.Game
         public int GameId { get; set; }
         
         private readonly DAL.ApplicationDbContext _context;
-
+        public static int TurnCounter { get; set; }
+        public static int NowTurn { get; set; }
+        
         public Index(DAL.ApplicationDbContext context)
         {
             _context = context;

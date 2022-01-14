@@ -36,7 +36,15 @@ namespace BattleShipConsoleApp
             }
             return standardLocalFolder;
         }
-
+        public static string ReturnGameTempFolderLocation()
+        {
+            string standardLocalFolder = ReturnFolderLocation() + Path.DirectorySeparatorChar + "TempSave";
+            if (!File.Exists(standardLocalFolder))
+            {
+                Directory.CreateDirectory(standardLocalFolder);
+            }
+            return standardLocalFolder;
+        }
         // Returns only name of the file.
         // int place = 0 for Config
         // int place = 1 for Game Save

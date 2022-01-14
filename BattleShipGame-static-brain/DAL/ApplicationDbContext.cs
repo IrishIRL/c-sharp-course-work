@@ -5,7 +5,7 @@ namespace DAL
 {
     public class ApplicationDbContext: DbContext
     {
-        private static string ConnectionString = "Server=barrel.itcollege.ee;User Id=student;Password=Student.Pass.1;Database=student_mashaf_database_v3;MultipleActiveResultSets=true";
+        private static string ConnectionString = "hardcoded_heh";
         
         public DbSet<GameConfig> GameConfigs { get; set; } = default!;
         public DbSet<GameSave> SavedGames { get; set; } = default!;

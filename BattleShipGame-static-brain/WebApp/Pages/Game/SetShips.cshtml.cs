@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using BattleShipBrain;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text.Json;
+using BattleShipConsoleApp;
 
 namespace WebApp.Pages.Game
 {
@@ -26,7 +28,8 @@ namespace WebApp.Pages.Game
             {
                 Index.Brain = Index.Brain.RandomShipPlacement(Index.Conf);
                 // When we start the game, we also make a save of it. Not sure why so, but let it be here.
-                Index.Brain.GetBrainJson(2, ""); // Decision 2 -> Save to database. We do not need name, when saving to database (since no name is saved), so it is left blank.
+                Index.Brain.GetBrainJson(1, "TempGameSaver_" + Index.TurnCounter, true);
+                //Index.Brain.GetBrainJson(2, "", true); // Decision 2 -> Save to database. We do not need name, when saving to database (since no name is saved), so it is left blank.
                 Response.Redirect("../Game/Play");
             }
             
@@ -34,7 +37,8 @@ namespace WebApp.Pages.Game
             {
                 Index.Brain.CurrentPlayerNo = 0;
                 // When we start the game, we also make a save of it. Not sure why so, but let it be here.
-                Index.Brain.GetBrainJson(2, ""); // Decision 2 -> Save to database. We do not need name, when saving to database (since no name is saved), so it is left blank.
+                Index.Brain.GetBrainJson(1, "TempGameSaver_" + Index.TurnCounter, true);
+                //Index.Brain.GetBrainJson(2, "", true); // Decision 2 -> Save to database. We do not need name, when saving to database (since no name is saved), so it is left blank.
                 Response.Redirect("../Game/Play");
             }
             

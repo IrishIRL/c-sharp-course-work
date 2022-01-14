@@ -32,7 +32,7 @@ namespace BattleShipConsoleUI
             Console.WriteLine("Which name would you like to set for the Game Save?");
             string nameOfGame = Console.ReadLine()!;
 
-            brain.GetBrainJson(saveDecisionParsed, nameOfGame);
+            brain.GetBrainJson(saveDecisionParsed, nameOfGame, false);
         }
 
         // Load Saved Game from both Local and Database copies 

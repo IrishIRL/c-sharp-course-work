@@ -201,10 +201,14 @@ namespace BattleShipBrain
         }
         
         // Save game to local/ database
-        public void GetBrainJson(int saveDecisionParsed, string nameOfGame)
-        { 
-            string savedGameFile = GlobalVariables.ReturnGameSaveFolderLocation() + Path.DirectorySeparatorChar + nameOfGame + ".json";
-            
+        public void GetBrainJson(int saveDecisionParsed, string nameOfGame, bool tempSave)
+        {
+            string savedGameFile = GlobalVariables.ReturnGameSaveFolderLocation() + Path.DirectorySeparatorChar + nameOfGame + ".json"; 
+            if (tempSave)
+            {
+                savedGameFile = GlobalVariables.ReturnGameTempFolderLocation() + Path.DirectorySeparatorChar + nameOfGame + ".json";
+            }
+
             var jsonOptions = new JsonSerializerOptions()
             {
                 WriteIndented = true

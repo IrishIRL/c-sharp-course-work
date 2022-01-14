@@ -177,5 +177,15 @@ else
 </div>
 <br/>
 }
+@{
+    if (Index.TurnCounter != 0)
+    {
+        <button class="btn btn-primary" onclick="location.href='?goBack=true'">Go back to the previous turn</button>
+    }
+    else if (Index.TurnCounter > Index.NowTurn)
+    {
+        <button class="btn btn-primary" onclick="location.href='?goFront=true'">Go back to the next turn</button>
+    }
+}
 <button class="btn btn-primary" onclick="location.href='?quit=1'">Save and Exit</button> 
 <button class="btn btn-primary" onclick="location.href='?quit=2'">Exit without Save</button> 

@@ -1,5 +1,10 @@
 # C# - Course work
 
+## Final result
+~~~
+Grade: 50/50
+~~~
+
 ## First Part: Console Calculator
 ~~~~
 Support following operations:

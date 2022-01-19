@@ -1,0 +1,200 @@
+﻿@page
+@model WebApp.Pages.Game.SetShips
+@{
+    ViewData["Title"] = "Game - Set Ships";
+    int currentPlayerNo = Model.CurrentPlayerNumber + 1;
+    bool moreShipToPlace = false;
+    var selected = "";
+}
+
+<h1>Current player: @currentPlayerNo</h1><br/><br/>
+@if (@Model.WrongLocation)
+{
+    <h4 class="text-center" style="color: red">Please choose the correct location</h4>
+}
+@if (@Model.WrongShip)
+{
+    <h4 class="text-center" style="color: red">Please choose the correct ship</h4>
+}
+
+
+<form method="post" id="mainForm" name="mainForm">
+    <input type="hidden" name="SelectedShipName" id="SelectedShipName" asp-for="SelectedShipName" value="">
+</form>
+
+
+
+<div class="row text-center">
+    <div class="col">
+        <h2 class="text-center">Your current board</h2>
+
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+            <tr>
+                <th style="height: 50px; width: 50px;">#</th>
+                @for (int x = 0; x < Model.GameBoard.Board.GetLength(0); x++)
+                {
+                    <th>
+                        @Model.Letters[x % 26]
+                    </th>
+                }
+            </tr>
+            </thead>
+            <tbody>
+            @for (int y = 0; y < Model.GameBoard.Board.GetLength(1); y++)
+            {
+                <tr style="height: 50px; width: 50px;">
+                    <th class="bg-dark text-light" style="border: 1px solid #454d55" scope="row">@y</th>
+                    @for (int x = 0; x < Model.GameBoard.Board.GetLength(0); x++)
+                    {
+                        <form method="post" id="form-@x-@y">
+                            <td style="height: 50px; width: 50px;" id="@x-@y" name="SelectPositionForm" class="game_board_cell">
+                                @{
+                                    var value = Model.GameBoard.Board[x, y].IsShip ? "8" : " ";
+                                }
+                                <input type="hidden" asp-for="X" value="@x">
+                                <input type="hidden" asp-for="Y" value="@y">
+                                <input type="hidden" asp-for="GameId" value="@Model.GameId">
+                                <input type="hidden" asp-for="ConfigId" value="@Model.ConfigId">
+                                <input type="hidden" asp-for="SelectedShipName" class="ShipName" value="">
+                                <text>@value</text>
+                                <input type="submit" value="" class="cell">
+                                @*<button type="button" value="form-@x-@y" class="cell" onclick="sendForms(value)"></button>*@
+                            </td>
+                        </form>
+                    }
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col">
+        <h2>Available ships:</h2>
+        <table class="table-bordered div-center">
+            <thead>
+            <tr class="bg-dark text-light">
+                <th style="height: 50px; width: 100px;">Ship Name</th>
+                <th style="height: 50px; width: 100px;">Ship size X</th>
+                <th style="height: 50px; width: 100px;">Ship size Y</th>
+                <th style="height: 50px; width: 100px;">Left Quantity</th>
+                <th style="height: 50px; width: 100px;">Settings</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var shipConfig in Model.GameConfig.ShipConfigs)
+            {
+                <tr style="height: 70px; width: 70px;">
+                    <td>@shipConfig.Name</td>
+                    <td>@shipConfig.ShipSizeX</td>
+                    <td>@shipConfig.ShipSizeY</td>
+                    <td>@shipConfig.Quantity</td>
+                    @if (Model.CountShipsLeft(shipConfig) < shipConfig.Quantity)
+                    {
+                        moreShipToPlace = true;
+                        <td><button class="btn btn-primary" value="@shipConfig.ShipSizeX-@shipConfig.ShipSizeY-@shipConfig.Name"
+                                    onclick="hello(value)">Add ship</button></td>
+                        //<td><a href="?shipName=">Add ship</a></td>
+                    }
+                    else
+                    {
+                        <td><a color="grey">All placed</a></td>
+                    }
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+<form method="post">
+    <input type="hidden" asp-for="GameId" value="@Model.GameId">
+    <input type="hidden" asp-for="ConfigId" value="@Model.ConfigId">
+    <input type="submit" class="btn btn-primary" value="Random Placement" asp-page-handler="RandomShipPlacement">
+</form>
+@if (!moreShipToPlace)
+{
+    <br/>
+    <br/>
+    if (currentPlayerNo == 1)
+    {
+        <form method="post">
+            <input type="hidden" asp-for="GameId" value="@Model.GameId">
+            <input type="hidden" asp-for="ConfigId" value="@Model.ConfigId">
+            <input type="submit" class="btn btn-primary" value="Change Player" asp-page-handler="ChangePlayer">
+        </form>
+    }
+    if (currentPlayerNo == 2)
+    {
+        <a class="btn btn-primary" asp-page="./Play" asp-route-gameId="@Model.GameId">Start Game</a>   
+    }
+}
+
+
+<style>
+    .selected {
+        background-color: #1b6ec2;
+    }
+    .cell {
+        width: 100%;
+        height: 100%;
+        background-color: white;
+        border: 0;
+    }
+</style>
+
+<script type="text/javascript">
+    let sizeX = 0;
+    let sizeY = 0;
+    
+    function sendForms(formId){
+       document.getElementById(formId).submit();
+       document.getElementById('mainForm').submit();
+    }
+    
+    function hello(Value) {
+      let val = Value.split("-")
+      sizeX = parseInt(val[0])
+      sizeY = parseInt(val[1])
+      let elems = document.getElementsByClassName("ShipName")
+      for (let i = elems.length - 1; i >= 0; --i) {
+          elems[i].value = val[2];
+      }
+      document.getElementById("SelectedShipName").value = val[2];
+    }
+ </script>
+
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<script>      
+    $( ".game_board_cell" ).hover(
+        function() {
+            let id = $( this ).attr('id')
+            let xy = id.split("-")
+            let x = parseInt(xy[0])
+            let y = parseInt(xy[1])
+                        
+            for(let ySize = 0; ySize < sizeY; ySize++) {
+              for(let xSize = 0; xSize < sizeX; xSize++) {
+                  let Xt = x + xSize
+                  let Yt = y + ySize
+                  let id = Xt + "-" + Yt
+                  $ ( "#" + id ).addClass( "selected" );
+              }
+            }
+               
+        }, function() {
+            let id = $( this ).attr('id')
+            let xy = id.split("-")
+            let x = parseInt(xy[0])
+            let y = parseInt(xy[1])
+
+            for(let ySize = 0; ySize < sizeY; ySize++) {
+              for(let xSize = 0; xSize < sizeX; xSize++) {
+                  let Xt = x + xSize
+                  let Yt = y + ySize
+                  let id = Xt + "-" + Yt
+                  $ ( "#" + id ).removeClass( "selected" );
+              }
+            } 
+        }
+    );
+</script>

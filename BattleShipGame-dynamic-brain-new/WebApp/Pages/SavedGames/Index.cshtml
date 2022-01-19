@@ -1,0 +1,55 @@
+@page
+@model WebApp.Pages_SavedGames.IndexModel
+
+@{
+    ViewData["Title"] = "Index - Saved Games";
+}
+
+<h1>Index</h1>
+<p>
+@{
+    if (Model.SuccessfullySavedGame == 1)
+    {
+        <a style="color: green">Successfully saved the game!</a>
+    }
+    else if (Model.SuccessfullySavedGame == 2)
+    {
+        <a style="color: red">Failed saving the game. Please try again!</a>
+    }
+}
+</p>
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.GameSave[0].SavedGameId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GameSave[0].GameSaveDate)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.GameSave)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.SavedGameId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GameSaveDate)
+            </td>
+            <td>
+                <a href='?saveToLocal=true&gameId=@item.SavedGameId'>Save Game</a> |
+                <a asp-page="./Details" asp-route-id="@item.SavedGameId">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.SavedGameId">Delete</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+<a asp-page="../Settings">Back to Settings</a>

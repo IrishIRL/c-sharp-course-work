@@ -1,0 +1,15 @@
+﻿@page
+@model WebApp.Pages.Settings
+@{
+    ViewData["Title"] = "Settings Page";
+}
+<!--<h1>@ViewData["Title"]</h1>-->
+
+<!--<a href="GameConfigs">Click here to see list of available Game Configs</a><br/>
+<a href="SavedGames">Click here to see list of available Saved Games</a>-->
+
+<div class="div-center text-center">
+    <h3>Here you can find available in database:</h3><br/>
+    <button class="btn btn-primary" onclick="location.href='GameConfigs'">Game Configs</button>
+    <button class="btn btn-primary" onclick="location.href='SavedGames'">Saved Games</button>
+</div>

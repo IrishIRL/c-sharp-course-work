@@ -1,0 +1,65 @@
+﻿@page
+@model WebApp.Pages.Game.LoadGame
+@{
+    ViewData["Title"] = "Game - Load Game";
+}
+<div class="row text-center">
+    <div class="col">
+        <h3>Here you can see all your saved database saved games:</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.GameSave[0].GameSaveDate)
+                </th>
+                <th>
+                    <a>Choose</a>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.GameSave) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.GameSaveDate)
+                    </td>
+                    <td>
+                        <!--<a href="../Game?gameId=@item.SavedGameId">Choose</a>-->
+                        <a class="btn btn-primary" asp-page="./Play" asp-route-gameId="@item.SavedGameId">Choose</a> 
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    <div class="col">
+        <h3>Here you can see all your saved database saved games:</h3>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.LocalSavedFiles)
+                </th>
+                <th>
+                    <a>Choose</a>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.LocalSavedFiles) {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item)
+                    </td>
+                    <td>
+                        <form method="post">
+                            <input type="hidden" asp-for="GameName" value="@item">
+                            <input type="submit" class="btn btn-primary" value="Choose" asp-page-handler="LoadLocalGame">
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
